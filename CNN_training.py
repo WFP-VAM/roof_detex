@@ -8,30 +8,33 @@ from tensorflow.python.keras.optimizers import RMSprop
 import pandas as pd
 import numpy as np
 
-train_data_dir = '../Data/train_roofs'
-validation_data_dir = '../Data/validate_roofs'
+train_data_dir = 'Data/train_roofs'
+validation_data_dir = 'Data/validate_roofs'
 labels = pd.read_csv('labels.csv')
 # dimensions of our images.
 img_width, img_height = 400, 400
 
 nb_train_samples = 1101
 nb_validation_samples = 363
-epochs = 100
+epochs = 20
 batch_size = 16
 
 # build the VGG16 network
 model = Sequential()
-model.add(Conv2D(32, (3, 3), padding='same', input_shape=(400, 400, 3)))
+model.add(Conv2D(32, (5, 5), padding='same', input_shape=(400, 400, 3)))
 model.add(Activation('relu'))
-model.add(MaxPooling2D(pool_size=(2, 2), strides=(2, 2)))
+model.add(MaxPooling2D(pool_size=(2, 2), data_format="channels_last"))
+model.add(Dropout(0.25))
 
-model.add(Conv2D(32, (3, 3), padding='same'))
+model.add(Conv2D(64, (5, 5), padding='same'))
 model.add(Activation('relu'))
-model.add(MaxPooling2D(pool_size=(2, 2)), strides=(2, 2))
+model.add(MaxPooling2D(pool_size=(2, 2), data_format="channels_last"))
+model.add(Dropout(0.25))
 
-model.add(Conv2D(64, (3, 3)))
+model.add(Conv2D(128, (3, 3), padding='same'))
 model.add(Activation('relu'))
-model.add(MaxPooling2D(pool_size=(2, 2)))
+model.add(MaxPooling2D(pool_size=(2, 2), data_format="channels_last"))
+model.add(Dropout(0.25))
 
 model.add(Flatten())  # this converts our 3D feature maps to 1D feature vectors
 model.add(Dense(64))
@@ -54,9 +57,7 @@ def regression_flow_from_directory(flow_from_directory_gen, list_of_values):
 train_datagen = tf.keras.preprocessing.image.ImageDataGenerator(
     rescale=1. / 255,
     shear_range=0.2,
-    zoom_range=0.2,
     rotation_range=90,
-    horizontal_flip=True,
     vertical_flip=True)
 
 test_datagen = tf.keras.preprocessing.image.ImageDataGenerator(rescale=1. / 255)
