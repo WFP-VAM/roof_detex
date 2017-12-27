@@ -1,9 +1,7 @@
-# https://stackoverflow.com/questions/41749398/using-keras-imagedatagenerator-in-a-regression-model?noredirect=1#comment70692649_41749398
-
 import tensorflow as tf
 
 from tensorflow.python.keras.layers import Flatten, Dense, Conv2D, MaxPooling2D, \
-    BatchNormalization, UpSampling2D, Cropping2D, Input
+    BatchNormalization, UpSampling2D, Input
 from tensorflow.python.keras.models import Model
 from tensorflow.python.keras.optimizers import RMSprop
 from tensorflow.python.keras.layers import Concatenate
@@ -23,25 +21,7 @@ epochs = 100
 batch_size = 16
 
 # UNET
-# https://www.kaggle.com/cjansen/u-net-in-keras
-def get_crop_shape(target, refer):
-    # width, the 3rd dimension
-    cw = (target.get_shape()[2] - refer.get_shape()[2]).value
-    assert (cw >= 0)
-    if cw % 2 != 0:
-        cw1, cw2 = int(cw / 2), int(cw / 2) + 1
-    else:
-        cw1, cw2 = int(cw / 2), int(cw / 2)
-    # height, the 2nd dimension
-    ch = (target.get_shape()[1] - refer.get_shape()[1]).value
-    assert (ch >= 0)
-    if ch % 2 != 0:
-        ch1, ch2 = int(ch / 2), int(ch / 2) + 1
-    else:
-        ch1, ch2 = int(ch / 2), int(ch / 2)
-
-    return (ch1, ch2), (cw1, cw2)
-
+# https://github.com/ternaus/kaggle_dstl_submission/blob/master/src/unet_buildings.py
 concat_axis = 3
 
 inputs = Input((400, 400, 3))
@@ -64,31 +44,19 @@ pool4 = MaxPooling2D(pool_size=(2, 2), data_format="channels_last")(conv4)
 conv5 = Conv2D(512, (3, 3), padding="same", activation="relu", data_format="channels_last")(pool4)
 conv5 = Conv2D(512, (3, 3), padding="same", activation="relu", data_format="channels_last")(conv5)
 
-up_conv5 = UpSampling2D(size=(2, 2), data_format="channels_last")(conv5)
-ch, cw = get_crop_shape(conv4, up_conv5)
-crop_conv4 = Cropping2D(cropping=(ch, cw), data_format="channels_last")(conv4)
-up6 = Concatenate([up_conv5, crop_conv4], axis=concat_axis)
+up6 = Concatenate(axis=concat_axis)([UpSampling2D(size=(2, 2))(conv5), conv4])
 conv6 = Conv2D(256, (3, 3), padding="same", activation="relu", data_format="channels_last")(up6)
 conv6 = Conv2D(256, (3, 3), padding="same", activation="relu", data_format="channels_last")(conv6)
 
-up_conv6 = UpSampling2D(size=(2, 2), data_format="channels_last")(conv6)
-ch, cw = get_crop_shape(conv3, up_conv6)
-crop_conv3 = Cropping2D(cropping=(ch, cw), data_format="channels_last")(conv3)
-up7 = Concatenate([up_conv6, crop_conv3], axis=concat_axis)
+up7 = Concatenate(concat_axis)([UpSampling2D(size=(2, 2))(conv6), conv3])
 conv7 = Conv2D(128, (3, 3), padding="same", activation="relu", data_format="channels_last")(up7)
 conv7 = Conv2D(128, (3, 3), padding="same", activation="relu", data_format="channels_last")(conv7)
 
-up_conv7 = UpSampling2D(size=(2, 2), data_format="channels_last")(conv7)
-ch, cw = get_crop_shape(conv2, up_conv7)
-crop_conv2 = Cropping2D(cropping=(ch, cw), data_format="channels_last")(conv2)
-up8 = Concatenate([up_conv7, crop_conv2], axis=concat_axis)
+up8 = Concatenate(concat_axis)([UpSampling2D(size=(2, 2))(conv7), conv2])
 conv8 = Conv2D(64, (3, 3), padding="same", activation="relu", data_format="channels_last")(up8)
 conv8 = Conv2D(64, (3, 3), padding="same", activation="relu", data_format="channels_last")(conv8)
 
-up_conv8 = UpSampling2D(size=(2, 2), data_format="channels_last")(conv8)
-ch, cw = get_crop_shape(conv1, up_conv8)
-crop_conv1 = Cropping2D(cropping=(ch, cw), data_format="channels_last")(conv1)
-up9 = Concatenate([up_conv8, crop_conv1], axis=concat_axis)
+up9 =Concatenate(concat_axis)([UpSampling2D(size=(2, 2))(conv8), conv1])
 conv9 = Conv2D(32, (3, 3), padding="same", activation="relu", data_format="channels_last")(up9)
 conv9 = Conv2D(32, (3, 3), padding="same", activation="relu", data_format="channels_last")(conv9)
 
@@ -105,9 +73,11 @@ model.compile(loss='mse',
               optimizer=opt)
 
 
+# https://stackoverflow.com/questions/41749398/using-keras-imagedatagenerator-in-a-regression-model?noredirect=1#comment70692649_41749398
 def regression_flow_from_directory(flow_from_directory_gen, list_of_values):
     for x, y in flow_from_directory_gen:
         yield x, list_of_values[y]
+
 
 # prepare data augmentation configuration
 train_datagen = tf.keras.preprocessing.image.ImageDataGenerator(
