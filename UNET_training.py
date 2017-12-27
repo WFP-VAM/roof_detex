@@ -9,63 +9,63 @@ from tensorflow.python.keras.layers import Concatenate
 import pandas as pd
 import numpy as np
 
-train_data_dir = '../Data/train_roofs'
-validation_data_dir = '../Data/validate_roofs'
+train_data_dir = 'Data/train_roofs'
+validation_data_dir = 'Data/validate_roofs'
 labels = pd.read_csv('labels.csv')
 # dimensions of our images.
-img_width, img_height = 400, 400
+img_width, img_height = 256, 256
 
 nb_train_samples = 1101
 nb_validation_samples = 363
-epochs = 100
-batch_size = 16
+epochs = 50
+batch_size = 8
 
 # UNET
 # https://github.com/ternaus/kaggle_dstl_submission/blob/master/src/unet_buildings.py
 concat_axis = 3
 
-inputs = Input((400, 400, 3))
+inputs = Input((img_width, img_height, 3))
 
-conv1 = Conv2D(32, (3, 3), padding="same", name="conv1_1", activation="relu", data_format="channels_last")(inputs)
-conv1 = Conv2D(32, (3, 3), padding="same", activation="relu", data_format="channels_last")(conv1)
+conv1 = Conv2D(16, (3, 3), padding="same", name="conv1_1", activation="relu", data_format="channels_last")(inputs)
+conv1 = Conv2D(16, (3, 3), padding="same", activation="relu", data_format="channels_last")(conv1)
 pool1 = MaxPooling2D(pool_size=(2, 2), data_format="channels_last")(conv1)
-conv2 = Conv2D(64, (3, 3), padding="same", activation="relu", data_format="channels_last")(pool1)
-conv2 = Conv2D(64, (3, 3), padding="same", activation="relu", data_format="channels_last")(conv2)
+conv2 = Conv2D(32, (3, 3), padding="same", activation="relu", data_format="channels_last")(pool1)
+conv2 = Conv2D(32, (3, 3), padding="same", activation="relu", data_format="channels_last")(conv2)
 pool2 = MaxPooling2D(pool_size=(2, 2), data_format="channels_last")(conv2)
 
-conv3 = Conv2D(128, (3, 3), padding="same", activation="relu", data_format="channels_last")(pool2)
-conv3 = Conv2D(128, (3, 3), padding="same", activation="relu", data_format="channels_last")(conv3)
+conv3 = Conv2D(64, (3, 3), padding="same", activation="relu", data_format="channels_last")(pool2)
+conv3 = Conv2D(64, (3, 3), padding="same", activation="relu", data_format="channels_last")(conv3)
 pool3 = MaxPooling2D(pool_size=(2, 2), data_format="channels_last")(conv3)
 
-conv4 = Conv2D(256, (3, 3), padding="same", activation="relu", data_format="channels_last")(pool3)
-conv4 = Conv2D(256, (3, 3), padding="same", activation="relu", data_format="channels_last")(conv4)
+conv4 = Conv2D(128, (3, 3), padding="same", activation="relu", data_format="channels_last")(pool3)
+conv4 = Conv2D(128, (3, 3), padding="same", activation="relu", data_format="channels_last")(conv4)
 pool4 = MaxPooling2D(pool_size=(2, 2), data_format="channels_last")(conv4)
 
-conv5 = Conv2D(512, (3, 3), padding="same", activation="relu", data_format="channels_last")(pool4)
-conv5 = Conv2D(512, (3, 3), padding="same", activation="relu", data_format="channels_last")(conv5)
+conv5 = Conv2D(256, (3, 3), padding="same", activation="relu", data_format="channels_last")(pool4)
+conv5 = Conv2D(256, (3, 3), padding="same", activation="relu", data_format="channels_last")(conv5)
 
 up6 = Concatenate(axis=concat_axis)([UpSampling2D(size=(2, 2))(conv5), conv4])
-conv6 = Conv2D(256, (3, 3), padding="same", activation="relu", data_format="channels_last")(up6)
-conv6 = Conv2D(256, (3, 3), padding="same", activation="relu", data_format="channels_last")(conv6)
+conv6 = Conv2D(128, (3, 3), padding="same", activation="relu", data_format="channels_last")(up6)
+conv6 = Conv2D(128, (3, 3), padding="same", activation="relu", data_format="channels_last")(conv6)
 
 up7 = Concatenate(concat_axis)([UpSampling2D(size=(2, 2))(conv6), conv3])
-conv7 = Conv2D(128, (3, 3), padding="same", activation="relu", data_format="channels_last")(up7)
-conv7 = Conv2D(128, (3, 3), padding="same", activation="relu", data_format="channels_last")(conv7)
+conv7 = Conv2D(64, (3, 3), padding="same", activation="relu", data_format="channels_last")(up7)
+conv7 = Conv2D(64, (3, 3), padding="same", activation="relu", data_format="channels_last")(conv7)
 
 up8 = Concatenate(concat_axis)([UpSampling2D(size=(2, 2))(conv7), conv2])
-conv8 = Conv2D(64, (3, 3), padding="same", activation="relu", data_format="channels_last")(up8)
-conv8 = Conv2D(64, (3, 3), padding="same", activation="relu", data_format="channels_last")(conv8)
+conv8 = Conv2D(32, (3, 3), padding="same", activation="relu", data_format="channels_last")(up8)
+conv8 = Conv2D(32, (3, 3), padding="same", activation="relu", data_format="channels_last")(conv8)
 
 up9 =Concatenate(concat_axis)([UpSampling2D(size=(2, 2))(conv8), conv1])
-conv9 = Conv2D(32, (3, 3), padding="same", activation="relu", data_format="channels_last")(up9)
-conv9 = Conv2D(32, (3, 3), padding="same", activation="relu", data_format="channels_last")(conv9)
+conv9 = Conv2D(16, (3, 3), padding="same", activation="relu", data_format="channels_last")(up9)
+conv9 = Conv2D(16, (3, 3), padding="same", activation="relu", data_format="channels_last")(conv9)
 
 flatten = Flatten()(conv9)
-Dense1 = Dense(512, activation='relu')(flatten)
+Dense1 = Dense(64, activation='relu')(flatten)
 BN = BatchNormalization()(Dense1)
 Dense2 = Dense(1, activation='linear')(BN)
 
-model = Model(input=inputs, output=Dense2)
+model = Model(inputs=inputs, outputs=Dense2)
 
 opt = RMSprop(lr=0.0001, rho=0.9, epsilon=1e-08, decay=1e-6)
 
