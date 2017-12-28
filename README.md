@@ -2,9 +2,13 @@
 
 # Approaches
 - UNet
+
   train mse ~ 8, validation mse ~ 14
   
 - CNN
+
   train mse ~ 8, validation mse ~ 14
   
 - fine-tuned VGG16
+
+  train mse ~ 9, validation mse ~ 14
