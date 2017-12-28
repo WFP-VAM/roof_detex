@@ -95,3 +95,6 @@ plt.ylabel('loss')
 plt.xlabel('epoch')
 plt.legend(['train', 'test'], loc='upper left')
 plt.savefig('training_history.png')
+
+# save model
+model.save('LENET_model.h5')
