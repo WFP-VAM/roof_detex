@@ -3,7 +3,7 @@
 import tensorflow as tf
 from tensorflow.python.keras.layers import Dropout, Flatten, Dense, Conv2D, MaxPooling2D
 from tensorflow.python.keras.models import Sequential
-from tensorflow.python.keras.optimizers import RMSprop
+from tensorflow.python.keras.optimizers import RMSprop, Adam
 
 import pandas as pd
 import numpy as np
@@ -12,15 +12,15 @@ train_data_dir = 'Data/train_roofs'
 validation_data_dir = 'Data/validate_roofs'
 labels = pd.read_csv('labels.csv')
 # dimensions of our images.
-img_width, img_height = 400, 400
+img_width, img_height = 256, 256
 
 nb_train_samples = 1101
 nb_validation_samples = 363
-epochs = 20
+epochs = 30
 batch_size = 16
 
 # build the VGG16 network
-base_model = tf.keras.applications.VGG16(weights='imagenet', include_top=False, input_shape=(400, 400, 3))
+base_model = tf.keras.applications.VGG16(weights='imagenet', include_top=False, input_shape=(img_width, img_height, 3))
 
 # build a classifier model to put on top of the convolutional model
 top_model = Sequential()
@@ -32,11 +32,11 @@ top_model.add(Dense(1, activation='linear'))
 # add the model on top of the convolutional base
 model = tf.keras.models.Model(inputs=base_model.input, outputs=top_model(base_model.output))
 
-for layer in model.layers[:16]:  # 18 leaves the last max pool out
+for layer in model.layers[:15]:  # 18 leaves the last max pool out
     layer.trainable = False
 
 # compile model
-opt = RMSprop(lr=0.0001, rho=0.9, epsilon=1e-08, decay=1e-6)
+opt = Adam(lr=0.01, decay=1e-4)
 
 model.compile(loss='mse', optimizer=opt)
 
@@ -49,9 +49,7 @@ def regression_flow_from_directory(flow_from_directory_gen, list_of_values):
 train_datagen = tf.keras.preprocessing.image.ImageDataGenerator(
     rescale=1. / 255,
     shear_range=0.2,
-    zoom_range=0.2,
     rotation_range=90,
-    horizontal_flip=True,
     vertical_flip=True)
 
 test_datagen = tf.keras.preprocessing.image.ImageDataGenerator(rescale=1. / 255)

@@ -17,7 +17,7 @@ img_width, img_height = 256, 256
 
 nb_train_samples = 1101
 nb_validation_samples = 363
-epochs = 50
+epochs = 20
 batch_size = 8
 
 # UNET
@@ -67,7 +67,7 @@ Dense2 = Dense(1, activation='linear')(BN)
 
 model = Model(inputs=inputs, outputs=Dense2)
 
-opt = RMSprop(lr=0.0001, rho=0.9, epsilon=1e-08, decay=1e-6)
+opt = RMSprop(lr=0.001, rho=0.9, epsilon=1e-08, decay=1e-6)
 
 model.compile(loss='mse',
               optimizer=opt)
@@ -83,9 +83,7 @@ def regression_flow_from_directory(flow_from_directory_gen, list_of_values):
 train_datagen = tf.keras.preprocessing.image.ImageDataGenerator(
     rescale=1. / 255,
     shear_range=0.2,
-    zoom_range=0.2,
     rotation_range=90,
-    horizontal_flip=True,
     vertical_flip=True)
 
 test_datagen = tf.keras.preprocessing.image.ImageDataGenerator(rescale=1. / 255)
