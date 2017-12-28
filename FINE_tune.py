@@ -22,18 +22,6 @@ batch_size = 16
 # build the VGG16 network
 base_model = tf.keras.applications.VGG16(weights='imagenet', include_top=False, input_shape=(400, 400, 3))
 
-# to non-trainable (weights will not be updated)
-for layer in base_model.layers:  # 18 leaves the last max pool out
-    if ((layer.name == 'block5_conv1') |
-            (layer.name == 'block5_conv2') |
-            (layer.name == 'block5_conv3') |
-            (layer.name == 'block5_pool')):
-        layer.trainable = True
-    else:
-        layer.trainable = False
-
-    print(layer.name, ' : ', layer.trainable)
-
 # build a classifier model to put on top of the convolutional model
 top_model = Sequential()
 top_model.add(Flatten(input_shape=base_model.output_shape[1:]))
@@ -43,6 +31,9 @@ top_model.add(Dense(1, activation='linear'))
 
 # add the model on top of the convolutional base
 model = tf.keras.models.Model(inputs=base_model.input, outputs=top_model(base_model.output))
+
+for layer in model.layers[:16]:  # 18 leaves the last max pool out
+    layer.trainable = False
 
 # compile model
 opt = RMSprop(lr=0.0001, rho=0.9, epsilon=1e-08, decay=1e-6)
