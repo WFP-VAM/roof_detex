@@ -14,9 +14,9 @@ img_rows, img_cols = 400, 400
 # get images metadata -------------------------------------------
 def load_training_data():
     # Load training data
-    json_data = open('GiveDirectlyData/data/train-data-2014-01-13.json')
+    json_data = open('../GiveDirectlyData/data/train-data-2014-01-13.json')
     roof_data = [json.loads(json_line) for json_line in json_data]
-    image_meta = pd.read_csv('GiveDirectlyData/data/image_metadata.csv')
+    image_meta = pd.read_csv('../GiveDirectlyData/data/image_metadata.csv')
     roof_train = pd.DataFrame(roof_data)
     roof_train['image_tag'] = roof_train.image.map(lambda name: name.strip().split('-')[0])
     roof_train['image'] = roof_train.image.map(lambda name: name.strip())
@@ -42,9 +42,9 @@ for ix, row in training_data.iterrows():
 # https://github.com/JamilGafur/Unet/blob/master/U-net%20Cell%20segment.ipynb
 
 training_images = []
-for file in os.listdir('GiveDirectlyData/data/images'):
+for file in os.listdir('../GiveDirectlyData/data/images'):
     if file.endswith(".png"):
-        img = Image.open("GiveDirectlyData/data/images/" + file)
+        img = Image.open("../GiveDirectlyData/data/images/" + file)
         img.load()
         data = np.asarray(img, dtype="int32")
         training_images.append(data)
@@ -98,4 +98,17 @@ model = Model(inputs=[inputs], outputs=[conv10])
 model.compile(optimizer=Adam(lr=1e-5), loss='binary_crossentropy', metrics=['accuracy'])
 
 
-model.fit(train_images, train_labels, batch_size=32, epochs=20, shuffle=True, validation_split=0.2)
+model.fit(train_images, train_labels, batch_size=8, epochs=5, shuffle=True, validation_split=0.2)
+
+import matplotlib.pyplot as plt
+plt.switch_backend('agg')
+plt.plot(history.history['loss'])
+plt.plot(history.history['val_loss'])
+plt.title('model loss')
+plt.ylabel('loss')
+plt.xlabel('epoch')
+plt.legend(['train', 'test'], loc='upper left')
+plt.savefig('training_history.png')
+
+# save model
+model.save('UNET_model.h5')
