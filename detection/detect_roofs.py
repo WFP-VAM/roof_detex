@@ -9,7 +9,7 @@ from tensorflow.python.keras.models import Model
 
 # PARAMETERS ------------
 img_rows, img_cols = 400, 400
-buffer = 3
+buffer = 0
 
 
 # get images metadata -------------------------------------------
@@ -39,12 +39,20 @@ for ix, row in training_data.iterrows():
         x = int(roof['x'])
         for i in range(-buffer, buffer+1):
             try:
-                tmp[y+buffer, x+buffer] = 1
+                tmp[x+buffer, y+buffer] = 1
             except IndexError:
                 pass
 
     mask.append(tmp)
 
+
+# training_data.columns
+# import matplotlib.pyplot as plt
+# plt.imshow(mask[1].T) #Needs to be in row,col order
+# img = Image.open("../GiveDirectlyData/data/images/" + training_data.loc[1,'image'])
+# img.load()
+# data = np.asarray(img, dtype="int32")
+# plt.imshow(data)
 # data loading routines ----------------------------------
 # https://github.com/JamilGafur/Unet/blob/master/U-net%20Cell%20segment.ipynb
 
