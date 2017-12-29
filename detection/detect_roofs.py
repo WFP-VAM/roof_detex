@@ -10,7 +10,7 @@ from tensorflow.python.keras import backend as K
 
 # PARAMETERS ------------
 img_rows, img_cols = 400, 400
-buffer = 0
+buffer = 3
 
 
 # get images metadata -------------------------------------------
@@ -39,10 +39,11 @@ for ix, row in training_data.iterrows():
         y = int(roof['y'])
         x = int(roof['x'])
         for i in range(-buffer, buffer+1):
-            try:
-                tmp[x+buffer, y+buffer] = 1
-            except IndexError:
-                pass
+            for j in range(-buffer, buffer+1):
+                try:
+                    tmp[x+i, y+j] = 1
+                except IndexError:
+                    pass
 
     mask.append(tmp)
 
