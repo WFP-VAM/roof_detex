@@ -9,6 +9,7 @@ from tensorflow.python.keras.models import Model
 
 # PARAMETERS ------------
 img_rows, img_cols = 400, 400
+buffer = 3
 
 
 # get images metadata -------------------------------------------
@@ -34,7 +35,13 @@ for ix, row in training_data.iterrows():
     tmp = np.zeros([400,400])
 
     for roof in row['roofs']:
-        tmp[int(roof['y']), int(roof['x'])] = 1
+        y = int(roof['y'])
+        x = int(roof['x'])
+        for i in range(-buffer, buffer+1):
+            try:
+                tmp[y+buffer, x+buffer] = 1
+            except IndexError:
+                pass
 
     mask.append(tmp)
 
