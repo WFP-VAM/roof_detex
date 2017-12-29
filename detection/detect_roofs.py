@@ -6,6 +6,7 @@ from PIL import Image
 from tensorflow.python.keras.layers import Input, concatenate, Conv2D, MaxPooling2D, Conv2DTranspose
 from tensorflow.python.keras.optimizers import Adam
 from tensorflow.python.keras.models import Model
+from tensorflow.python.keras import backend as K
 
 # PARAMETERS ------------
 img_rows, img_cols = 400, 400
@@ -70,6 +71,16 @@ train_labels = np.array(mask).reshape(len(training_images), 400, 400, 1)
 
 
 # https://github.com/jocicmarko/ultrasound-nerve-segmentation/blob/master/train.py
+def dice_coef(y_true, y_pred):
+    y_true_f = K.flatten(y_true)
+    y_pred_f = K.flatten(y_pred)
+    intersection = K.sum(y_true_f * y_pred_f)
+    return (2. * intersection + 1.) / (K.sum(y_true_f) + K.sum(y_pred_f) + 1.)
+
+
+def dice_coef_loss(y_true, y_pred):
+    return -dice_coef(y_true, y_pred)
+
 inputs = Input((img_rows, img_cols, 1))
 conv1 = Conv2D(32, (3, 3), activation='relu', padding='same')(inputs)
 conv1 = Conv2D(32, (3, 3), activation='relu', padding='same')(conv1)
@@ -110,7 +121,7 @@ conv10 = Conv2D(1, (1, 1), activation='sigmoid')(conv9)
 
 model = Model(inputs=[inputs], outputs=[conv10])
 
-model.compile(optimizer=Adam(lr=1e-5), loss='binary_crossentropy', metrics=['accuracy'])
+model.compile(optimizer=Adam(lr=1e-5), loss=dice_coef_loss, metrics=[dice_coef])
 
 
 model.fit(train_images, train_labels, batch_size=8, epochs=5, shuffle=True, validation_split=0.2)
