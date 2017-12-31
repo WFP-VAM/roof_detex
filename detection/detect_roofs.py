@@ -10,7 +10,7 @@ from tensorflow.python.keras import backend as K
 
 # PARAMETERS ------------
 img_rows, img_cols = 400, 400
-buffer = 3
+buffer = 4
 
 
 # get images metadata -------------------------------------------
@@ -122,10 +122,17 @@ conv10 = Conv2D(1, (1, 1), activation='sigmoid')(conv9)
 
 model = Model(inputs=[inputs], outputs=[conv10])
 
-model.compile(optimizer=Adam(lr=1e-5), loss=dice_coef_loss, metrics=[dice_coef])
+model.compile(optimizer=Adam(lr=1e-5), loss='binary_crossentropy', metrics=['binary_crossentropy'])
 
 
-model.fit(train_images, train_labels, batch_size=8, epochs=5, shuffle=True, validation_split=0.2)
+train_images = train_images.astype('float32')
+mean = np.mean(train_images)  # mean for data centering
+std = np.std(train_images)  # std for data normalization
+
+train_images -= mean
+train_images /= std
+
+history = model.fit(train_images, train_labels, batch_size=8, epochs=10, shuffle=True, validation_split=0.3)
 
 import matplotlib.pyplot as plt
 plt.switch_backend('agg')
