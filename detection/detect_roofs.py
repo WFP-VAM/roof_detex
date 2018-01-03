@@ -73,7 +73,6 @@ for file in os.listdir('../GiveDirectlyData/data/images'):
         training_images.append(data)
 
 
-
 train_images = np.array(training_images).reshape(len(training_images), 400, 400, 3)
 train_labels = np.array(mask).reshape(len(training_images), 400, 400, 1)
 
@@ -134,16 +133,20 @@ model = Model(inputs=[inputs], outputs=[conv10])
 
 model.compile(optimizer=Adam(lr=1e-5), loss=dice_coef, metrics=[dice_coef])
 
-
+# normalize images
 train_images = train_images.astype('float32')
 mean = np.mean(train_images)  # mean for data centering
 std = np.std(train_images)  # std for data normalization
-
 train_images -= mean
 train_images /= std
+train_images = train_images/255.
+
+# viz check
+#plt.imshow(Image.fromarray(training_images[950].reshape(400,400,3), mode='RGB'))
+#plt.imshow(train_labels[950].reshape(400,400))
 
 history = model.fit(train_images, train_labels, batch_size=8, epochs=50, shuffle=True,
-                    validation_split=0.3) #, class_weight={0: 1., 1: 30})
+                    validation_split=0.3)
 
 # save training history plot
 plt.switch_backend('agg')
