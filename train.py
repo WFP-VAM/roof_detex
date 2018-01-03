@@ -1,5 +1,3 @@
-import json
-import pandas as pd
 import numpy as np
 import os
 from PIL import Image
@@ -11,47 +9,7 @@ from tensorflow.python.keras import backend as K
 
 # PARAMETERS ------------
 img_rows, img_cols = 400, 400
-buffer = 4
 
-
-# get images metadata -------------------------------------------
-def load_training_metadata():
-    # Load training data
-    json_data = open('../GiveDirectlyData/data/train-data-2014-01-13.json')
-    roof_data = [json.loads(json_line) for json_line in json_data]
-    image_meta = pd.read_csv('../GiveDirectlyData/data/image_metadata.csv')
-    roof_train = pd.DataFrame(roof_data)
-    roof_train['image_tag'] = roof_train.image.map(lambda name: name.strip().split('-')[0])
-    roof_train['image'] = roof_train.image.map(lambda name: name.strip())
-
-    # Merge Training data
-    all_train = pd.merge(image_meta, roof_train, left_on='GDID', right_on='image_tag')
-    return all_train
-
-training_data = load_training_metadata()
-
-
-# create mask, 1 roof, 0 nothing ---------------------------
-mask = []
-for ix, row in training_data.iterrows():
-    tmp = np.zeros([400,400])
-
-    for roof in row['roofs']:
-        y = int(roof['y'])
-        x = int(roof['x'])
-        for i in range(-buffer, buffer+1):
-            for j in range(-buffer, buffer+1):
-                try:
-                    tmp[y+i, x+j] = 1
-                except IndexError:
-                    pass
-
-    mask.append(tmp)
-
-
-# Viz checks
-# plt.imshow(mask[1]) #Needs to be in row,col order
-# plt.imshow(Image.open("../GiveDirectlyData/data/images/" + training_data.loc[1,'image']))
 
 # data loading routines ----------------------------------
 # https://github.com/JamilGafur/Unet/blob/master/U-net%20Cell%20segment.ipynb
@@ -63,19 +21,24 @@ def get_image(image_path):
     return image
 
 
+# get training images
 training_images = []
-for file in os.listdir('../GiveDirectlyData/data/images'):
+for file in os.listdir('GiveDirectlyData/data/images'):
     if file.endswith(".png"):
-        data = get_image('../GiveDirectlyData/data/images/' + file)
+        data = get_image('GiveDirectlyData/data/images/' + file)
         training_images.append(data)
 
+# get masks
+training_masks = []
+for file in os.listdir('masks'):
+    if file.endswith(".png"):
+        data = get_image('masks/' + file)
+        training_masks.append(data)
 
-train_images = np.array(training_images).reshape(len(training_images), 400, 400, 3)
-train_labels = np.array(mask).reshape(len(training_images), 400, 400, 1)
 
-# viz checks
-# (train_labels[2] > 0.1).sum()
-# plt.imshow(train_labels[2].reshape(400,400))
+training_images = np.array(training_images).reshape(len(training_images), 400, 400, 3)
+training_masks = np.array(training_masks)[:, :, :, 0].reshape(len(training_masks), 400, 400, 1)
+
 
 # https://github.com/jocicmarko/ultrasound-nerve-segmentation/blob/master/train.py
 def dice_coef(y_true, y_pred):
@@ -128,21 +91,23 @@ conv10 = Conv2D(1, (1, 1), activation='sigmoid')(conv9)
 
 model = Model(inputs=[inputs], outputs=[conv10])
 
-model.compile(optimizer=Adam(lr=1e-5), loss='binary_crossentropy', metrics=[dice_coef])
+model.compile(optimizer=Adam(lr=0.001), loss=dice_coef_loss, metrics=[dice_coef])
 
 # normalize images
-train_images = train_images.astype('float32')
-mean = np.mean(train_images)  # mean for data centering
-std = np.std(train_images)  # std for data normalization
-train_images -= mean
-train_images /= std
-train_images = train_images/255.
+training_images = training_images.astype('float32')
+mean = np.mean(training_images)  # mean for data centering
+std = np.std(training_images)  # std for data normalization
+training_images -= mean
+training_images /= std
+train_images = training_images/255.
 
 # viz check
-#plt.imshow(Image.fromarray(training_images[950].reshape(400,400,3), mode='RGB'))
-#plt.imshow(train_labels[950].reshape(400,400))
+# plt.figure()
+# plt.imshow(Image.fromarray(training_images[950].reshape(400,400,3), mode='RGB'))
+# plt.imshow(training_masks[950], cmap='gray', alpha=0.5)
+# plt.show()
 
-history = model.fit(train_images, train_labels, batch_size=8, epochs=50, shuffle=True,
+history = model.fit(training_images, training_masks, batch_size=8, epochs=20, shuffle=True,
                     validation_split=0.3)
 
 # save training history plot
