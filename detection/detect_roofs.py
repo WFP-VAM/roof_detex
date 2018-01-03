@@ -49,7 +49,7 @@ for ix, row in training_data.iterrows():
 
 
 # training_data.columns
-# import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt
 # plt.imshow(mask[1].T) #Needs to be in row,col order
 # img = Image.open("../GiveDirectlyData/data/images/" + training_data.loc[1,'image'])
 # img.load()
@@ -58,16 +58,23 @@ for ix, row in training_data.iterrows():
 # data loading routines ----------------------------------
 # https://github.com/JamilGafur/Unet/blob/master/U-net%20Cell%20segment.ipynb
 
+def get_image(image_path):
+    """Get a numpy array of an image so that one can access values[x][y]."""
+    image = Image.open(image_path, 'r')
+    image = image.convert('RGB')
+    image = np.array(image, dtype="int8")
+    return image
+
+
 training_images = []
 for file in os.listdir('../GiveDirectlyData/data/images'):
     if file.endswith(".png"):
-        img = Image.open("../GiveDirectlyData/data/images/" + file)
-        img.load()
-        data = np.asarray(img, dtype="int32")
+        data = get_image('../GiveDirectlyData/data/images/' + file)
         training_images.append(data)
 
 
-train_images = np.array(training_images).reshape(len(training_images), 400, 400, 1)
+
+train_images = np.array(training_images).reshape(len(training_images), 400, 400, 3)
 train_labels = np.array(mask).reshape(len(training_images), 400, 400, 1)
 
 
@@ -82,7 +89,7 @@ def dice_coef(y_true, y_pred):
 def dice_coef_loss(y_true, y_pred):
     return -dice_coef(y_true, y_pred)
 
-inputs = Input((img_rows, img_cols, 1))
+inputs = Input((img_rows, img_cols, 3))
 conv1 = Conv2D(32, (3, 3), activation='relu', padding='same')(inputs)
 conv1 = Conv2D(32, (3, 3), activation='relu', padding='same')(conv1)
 pool1 = MaxPooling2D(pool_size=(2, 2))(conv1)
@@ -122,7 +129,7 @@ conv10 = Conv2D(1, (1, 1), activation='sigmoid')(conv9)
 
 model = Model(inputs=[inputs], outputs=[conv10])
 
-model.compile(optimizer=Adam(lr=1e-5), loss='binary_crossentropy', metrics=['binary_crossentropy'])
+model.compile(optimizer=Adam(lr=1e-5), loss=dice_coef_loss, metrics=[dice_coef])
 
 
 train_images = train_images.astype('float32')
