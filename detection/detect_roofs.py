@@ -129,7 +129,7 @@ conv10 = Conv2D(1, (1, 1), activation='sigmoid')(conv9)
 
 model = Model(inputs=[inputs], outputs=[conv10])
 
-model.compile(optimizer=Adam(lr=1e-5), loss=dice_coef_loss, metrics=[dice_coef])
+model.compile(optimizer=Adam(lr=1e-5), loss='binary_crossentropy', metrics=[dice_coef])
 
 
 train_images = train_images.astype('float32')
@@ -139,7 +139,8 @@ std = np.std(train_images)  # std for data normalization
 train_images -= mean
 train_images /= std
 
-history = model.fit(train_images, train_labels, batch_size=8, epochs=10, shuffle=True, validation_split=0.3)
+history = model.fit(train_images, train_labels, batch_size=8, epochs=50, shuffle=True,
+                    validation_split=0.3, class_weight={0: 1., 1: 30})
 
 import matplotlib.pyplot as plt
 plt.switch_backend('agg')
