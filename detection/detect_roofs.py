@@ -3,6 +3,7 @@ import pandas as pd
 import numpy as np
 import os
 from PIL import Image
+import matplotlib.pyplot as plt
 from tensorflow.python.keras.layers import Input, concatenate, Conv2D, MaxPooling2D, Conv2DTranspose
 from tensorflow.python.keras.optimizers import Adam
 from tensorflow.python.keras.models import Model
@@ -45,19 +46,18 @@ for ix, row in training_data.iterrows():
                 except IndexError:
                     pass
 
-    mask.append(tmp)
+    mask.append(tmp.T)
 
 
-# training_data.columns
-import matplotlib.pyplot as plt
+# Viz checks
 # plt.imshow(mask[1].T) #Needs to be in row,col order
 # img = Image.open("../GiveDirectlyData/data/images/" + training_data.loc[1,'image'])
 # img.load()
 # data = np.asarray(img, dtype="int32")
 # plt.imshow(data)
+
 # data loading routines ----------------------------------
 # https://github.com/JamilGafur/Unet/blob/master/U-net%20Cell%20segment.ipynb
-
 def get_image(image_path):
     """Get a numpy array of an image so that one can access values[x][y]."""
     image = Image.open(image_path, 'r')
@@ -77,6 +77,9 @@ for file in os.listdir('../GiveDirectlyData/data/images'):
 train_images = np.array(training_images).reshape(len(training_images), 400, 400, 3)
 train_labels = np.array(mask).reshape(len(training_images), 400, 400, 1)
 
+# viz checks
+# (train_labels[2] > 0.1).sum()
+# plt.imshow(train_labels[2].reshape(400,400))
 
 # https://github.com/jocicmarko/ultrasound-nerve-segmentation/blob/master/train.py
 def dice_coef(y_true, y_pred):
