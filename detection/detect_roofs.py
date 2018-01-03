@@ -132,7 +132,7 @@ conv10 = Conv2D(1, (1, 1), activation='sigmoid')(conv9)
 
 model = Model(inputs=[inputs], outputs=[conv10])
 
-model.compile(optimizer=Adam(lr=1e-5), loss='binary_crossentropy', metrics=[dice_coef])
+model.compile(optimizer=Adam(lr=1e-5), loss=dice_coef, metrics=[dice_coef])
 
 
 train_images = train_images.astype('float32')
@@ -143,9 +143,9 @@ train_images -= mean
 train_images /= std
 
 history = model.fit(train_images, train_labels, batch_size=8, epochs=50, shuffle=True,
-                    validation_split=0.3, class_weight={0: 1., 1: 30})
+                    validation_split=0.3) #, class_weight={0: 1., 1: 30})
 
-import matplotlib.pyplot as plt
+# save training history plot
 plt.switch_backend('agg')
 plt.plot(history.history['loss'])
 plt.plot(history.history['val_loss'])
