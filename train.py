@@ -108,7 +108,7 @@ train_images = training_images/255.
 # plt.imshow(training_masks[0], cmap='gray', alpha=0.5)
 # plt.show()
 
-tb = TensorBoard(log_dir='logs', histogram_freq=0,  write_graph=True, write_images=False)
+tb = TensorBoard(log_dir='logs', histogram_freq=2,  write_graph=False, write_images=True)
 
 
 history = model.fit(training_images.reshape(len(training_images),400,400,1),
