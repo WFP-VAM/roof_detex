@@ -6,6 +6,7 @@ from tensorflow.python.keras.layers import Input, concatenate, Conv2D, MaxPoolin
 from tensorflow.python.keras.optimizers import Adam
 from tensorflow.python.keras.models import Model
 from tensorflow.python.keras import backend as K
+from tensorflow.python.keras.callbacks import TensorBoard
 
 # PARAMETERS ------------
 img_rows, img_cols = 400, 400
@@ -91,7 +92,7 @@ conv10 = Conv2D(1, (1, 1), activation='sigmoid')(conv9)
 
 model = Model(inputs=[inputs], outputs=[conv10])
 
-model.compile(optimizer=Adam(lr=0.001), loss=dice_coef_loss, metrics=[dice_coef])
+model.compile(optimizer=Adam(lr=0.01, decay=0.0001), loss='binary_crossentropy', metrics=[dice_coef])
 
 # normalize images
 training_images = training_images.astype('float32')
@@ -106,9 +107,11 @@ train_images = training_images/255.
 # plt.imshow(Image.fromarray(training_images[950].reshape(400,400,3), mode='RGB'))
 # plt.imshow(training_masks[950], cmap='gray', alpha=0.5)
 # plt.show()
+tb = TensorBoard(log_dir='logs', histogram_freq=0,  write_graph=True, write_images=False)
 
-history = model.fit(training_images, training_masks, batch_size=8, epochs=20, shuffle=True,
-                    validation_split=0.3)
+
+history = model.fit(training_images, training_masks, batch_size=8, epochs=30, shuffle=True,
+                    validation_split=0.3, callbacks=[tb])
 
 # save training history plot
 plt.switch_backend('agg')
