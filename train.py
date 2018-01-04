@@ -50,7 +50,7 @@ def dice_coef(y_true, y_pred):
 
 
 def dice_coef_loss(y_true, y_pred):
-    return -dice_coef(y_true, y_pred)
+    return 1-dice_coef(y_true, y_pred)
 
 inputs = Input((img_rows, img_cols, 1))
 conv1 = Conv2D(32, (3, 3), activation='relu', padding='same')(inputs)
@@ -92,7 +92,7 @@ conv10 = Conv2D(1, (1, 1), activation='sigmoid')(conv9)
 
 model = Model(inputs=[inputs], outputs=[conv10])
 
-model.compile(optimizer=Adam(lr=0.001, decay=0.0001), loss='binary_crossentropy', metrics=[dice_coef])
+model.compile(optimizer=Adam(lr=0.00001, decay=0.0000001), loss=dice_coef_loss, metrics=[dice_coef])
 
 # normalize images
 training_images = training_images.astype('float32')
