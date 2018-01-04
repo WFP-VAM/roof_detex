@@ -9,8 +9,8 @@ from tensorflow.python.keras import backend as K
 from tensorflow.python.keras.callbacks import TensorBoard
 
 # PARAMETERS ------------
-img_rows, img_cols = 400, 400
-
+img_rows, img_cols = 256, 256
+# 400 - Google logos
 
 # data loading routines ----------------------------------
 # https://github.com/JamilGafur/Unet/blob/master/U-net%20Cell%20segment.ipynb
@@ -27,14 +27,16 @@ training_images = []
 for file in os.listdir('GiveDirectlyData/data/images'):
     if file.endswith(".png"):
         data = get_image('GiveDirectlyData/data/images/' + file)
-        training_images.append(data)
+
+        # remove Google sign at the bottom and take central part
+        training_images.append(data[:256,72:328])
 
 # get masks
 training_masks = []
 for file in os.listdir('masks'):
     if file.endswith(".png"):
         data = get_image('masks/' + file)
-        training_masks.append(data)
+        training_masks.append(data[:256,72:328])
 
 
 training_images = np.array(training_images) #.reshape(len(training_images), 400, 400, 3)
@@ -94,6 +96,7 @@ model = Model(inputs=[inputs], outputs=[conv10])
 
 model.compile(optimizer=Adam(lr=0.00001, decay=0.0000001), loss=dice_coef_loss, metrics=[dice_coef])
 
+
 # normalize images
 training_images = training_images.astype('float32')
 mean = np.mean(training_images)  # mean for data centering
@@ -103,16 +106,16 @@ training_images /= std
 train_images = training_images/255.
 
 # viz check
-# plt.figure()
-# plt.imshow(training_images[0])
-# plt.imshow(training_masks[0], cmap='gray', alpha=0.5)
-# plt.show()
+plt.figure()
+plt.imshow(training_images[0])
+plt.imshow(training_masks[0], cmap='gray', alpha=0.5)
+plt.show()
 
 tb = TensorBoard(log_dir='logs', histogram_freq=2,  write_graph=False, write_images=True)
 
 
-history = model.fit(training_images.reshape(len(training_images),400,400,1),
-                    training_masks.reshape(len(training_images),400,400,1),
+history = model.fit(training_images.reshape(len(training_images),256,256,1),
+                    training_masks.reshape(len(training_images),256,256,1),
                     batch_size=8, epochs=30, shuffle=True,
                     validation_split=0.3, callbacks=[tb])
 
