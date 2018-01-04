@@ -17,8 +17,8 @@ img_rows, img_cols = 400, 400
 def get_image(image_path):
     """Get a numpy array of an image so that one can access values[x][y]."""
     image = Image.open(image_path, 'r')
-    image = image.convert('RGB')
-    image = np.array(image, dtype="int8")
+    #image = image.convert('RGB')
+    image = np.array(image)
     return image
 
 
@@ -37,8 +37,8 @@ for file in os.listdir('masks'):
         training_masks.append(data)
 
 
-training_images = np.array(training_images).reshape(len(training_images), 400, 400, 3)
-training_masks = np.array(training_masks)[:, :, :, 0].reshape(len(training_masks), 400, 400, 1)
+training_images = np.array(training_images) #.reshape(len(training_images), 400, 400, 3)
+training_masks = np.array(training_masks)[:, :, :, 0]#.reshape(len(training_masks), 400, 400, 1)
 
 
 # https://github.com/jocicmarko/ultrasound-nerve-segmentation/blob/master/train.py
@@ -52,7 +52,7 @@ def dice_coef(y_true, y_pred):
 def dice_coef_loss(y_true, y_pred):
     return -dice_coef(y_true, y_pred)
 
-inputs = Input((img_rows, img_cols, 3))
+inputs = Input((img_rows, img_cols, 1))
 conv1 = Conv2D(32, (3, 3), activation='relu', padding='same')(inputs)
 conv1 = Conv2D(32, (3, 3), activation='relu', padding='same')(conv1)
 pool1 = MaxPooling2D(pool_size=(2, 2))(conv1)
@@ -92,7 +92,7 @@ conv10 = Conv2D(1, (1, 1), activation='sigmoid')(conv9)
 
 model = Model(inputs=[inputs], outputs=[conv10])
 
-model.compile(optimizer=Adam(lr=0.01, decay=0.0001), loss='binary_crossentropy', metrics=[dice_coef])
+model.compile(optimizer=Adam(lr=0.001, decay=0.0001), loss='binary_crossentropy', metrics=[dice_coef])
 
 # normalize images
 training_images = training_images.astype('float32')
@@ -104,13 +104,16 @@ train_images = training_images/255.
 
 # viz check
 # plt.figure()
-# plt.imshow(Image.fromarray(training_images[950].reshape(400,400,3), mode='RGB'))
-# plt.imshow(training_masks[950], cmap='gray', alpha=0.5)
+# plt.imshow(training_images[0])
+# plt.imshow(training_masks[0], cmap='gray', alpha=0.5)
 # plt.show()
+
 tb = TensorBoard(log_dir='logs', histogram_freq=0,  write_graph=True, write_images=False)
 
 
-history = model.fit(training_images, training_masks, batch_size=8, epochs=30, shuffle=True,
+history = model.fit(training_images.reshape(len(training_images),400,400,1),
+                    training_masks.reshape(len(training_images),400,400,1),
+                    batch_size=8, epochs=30, shuffle=True,
                     validation_split=0.3, callbacks=[tb])
 
 # save training history plot
