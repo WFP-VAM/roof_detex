@@ -44,7 +44,4 @@ for ix, row in training_data.iterrows():
     im = Image.fromarray(tmp.astype(np.uint8))
     im.save("masks/"+file)
 
-# Viz checks
-import matplotlib.pyplot as plt
-plt.imshow(mask[1]) #Needs to be in row,col order
-# plt.imshow(Image.open("GiveDirectlyData/data/images/" + training_data.loc[68,'image']))
+

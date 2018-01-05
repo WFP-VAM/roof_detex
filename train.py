@@ -43,8 +43,8 @@ train_images = training_images/255.
 
 # viz check
 # plt.figure()
-# plt.imshow(training_images[0])
-# plt.imshow(training_masks[0], cmap='gray', alpha=0.5)
+# plt.imshow(training_images[508])
+# plt.imshow(training_masks[508], cmap='gray', alpha=0.5)
 # plt.show()
 
 tb = TensorBoard(log_dir='logs', histogram_freq=False,  write_graph=False, write_images=False)
