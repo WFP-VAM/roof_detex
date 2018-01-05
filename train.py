@@ -47,13 +47,13 @@ train_images = training_images/255.
 # plt.imshow(training_masks[0], cmap='gray', alpha=0.5)
 # plt.show()
 
-tb = TensorBoard(log_dir='logs', histogram_freq=2,  write_graph=False, write_images=False)
+tb = TensorBoard(log_dir='logs', histogram_freq=False,  write_graph=False, write_images=False)
 
 
 history = model.fit(training_images.reshape(len(training_images),img_rows, img_cols,1),
                     training_masks.reshape(len(training_images),img_rows, img_cols,1),
-                    batch_size=8, epochs=40, shuffle=True,
-                    validation_split=0.2, callbacks=[tb])
+                    batch_size=4, epochs=20, shuffle=True,
+                    validation_split=0.3, callbacks=[tb])
 
 # save training history plot
 save_history_plot(history, 'training_history.png')
