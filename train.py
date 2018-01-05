@@ -1,30 +1,28 @@
 import numpy as np
 import os
-from PIL import Image
 import matplotlib.pyplot as plt
 from tensorflow.python.keras.callbacks import TensorBoard
 from utils import get_image, save_history_plot
 from unet import unet
 
 # PARAMETERS ------------
-img_rows, img_cols = 256, 256
-
+img_rows, img_cols = 320, 400
+# because of MaxPool layer width and height has to be divisible by 2^4
+# use 320 on the rows to avoid the Google sign.
 
 # get training images ----------------------
 training_images = []
 for file in os.listdir('GiveDirectlyData/data/images'):
     if file.endswith(".png"):
         data = get_image('GiveDirectlyData/data/images/' + file)
-
-        # remove Google sign at the bottom and take central part
-        training_images.append(data[:256,72:328])
+        training_images.append(data[:img_rows,:])
 
 # get masks -------------------------------
 training_masks = []
 for file in os.listdir('masks'):
     if file.endswith(".png"):
         data = get_image('masks/' + file)
-        training_masks.append(data[:256,72:328])
+        training_masks.append(data[:img_rows,:])
 
 
 # reshape ---------------------------------
@@ -52,10 +50,10 @@ train_images = training_images/255.
 tb = TensorBoard(log_dir='logs', histogram_freq=2,  write_graph=False, write_images=False)
 
 
-history = model.fit(training_images.reshape(len(training_images),256,256,1),
-                    training_masks.reshape(len(training_images),256,256,1),
-                    batch_size=8, epochs=30, shuffle=True,
-                    validation_split=0.3, callbacks=[tb])
+history = model.fit(training_images.reshape(len(training_images),img_rows, img_cols,1),
+                    training_masks.reshape(len(training_images),img_rows, img_cols,1),
+                    batch_size=8, epochs=40, shuffle=True,
+                    validation_split=0.2, callbacks=[tb])
 
 # save training history plot
 save_history_plot(history, 'training_history.png')
