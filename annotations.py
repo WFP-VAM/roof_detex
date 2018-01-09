@@ -1,24 +1,9 @@
-import json
-import pandas as pd
 import numpy as np
 from PIL import Image
-
+from utils import load_training_metadata
 buffer = 4
 
 # get images metadata -------------------------------------------
-def load_training_metadata():
-    # Load training data
-    json_data = open('GiveDirectlyData/data/train-data-2014-01-13.json')
-    roof_data = [json.loads(json_line) for json_line in json_data]
-    image_meta = pd.read_csv('GiveDirectlyData/data/image_metadata.csv')
-    roof_train = pd.DataFrame(roof_data)
-    roof_train['image_tag'] = roof_train.image.map(lambda name: name.strip().split('-')[0])
-    roof_train['image'] = roof_train.image.map(lambda name: name.strip())
-
-    # Merge Training data
-    all_train = pd.merge(image_meta, roof_train, left_on='GDID', right_on='image_tag')
-    return all_train
-
 training_data = load_training_metadata()
 
 
