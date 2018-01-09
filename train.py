@@ -3,10 +3,11 @@ import os
 import matplotlib.pyplot as plt
 from tensorflow.python.keras.callbacks import TensorBoard
 from utils import get_image, save_history_plot
-from unet import unet
+from unet import unet, unet2
+
 
 # PARAMETERS ------------
-img_rows, img_cols = 320, 400
+img_rows, img_cols = 400, 400
 # because of MaxPool layer width and height has to be divisible by 2^4
 # use 320 on the rows to avoid the Google sign.
 
@@ -30,8 +31,8 @@ training_images = np.array(training_images) #.reshape(len(training_images), 400,
 training_masks = np.array(training_masks)[:, :, :, 0]#.reshape(len(training_masks), 400, 400, 1)
 
 # instantiate model ----------------------
-model = unet(img_rows, img_cols)
-
+# model = unet(img_rows, img_cols)
+model = unet2(img_rows, img_cols)  # with dropout
 
 # normalize images
 training_images = training_images.astype('float32')
