@@ -52,7 +52,7 @@ tb = TensorBoard(log_dir='logs', histogram_freq=False,  write_graph=False, write
 
 history = model.fit(training_images.reshape(len(training_images),img_rows, img_cols,1),
                     training_masks.reshape(len(training_images),img_rows, img_cols,1),
-                    batch_size=4, epochs=20, shuffle=True,
+                    batch_size=4, epochs=30, shuffle=True,
                     validation_split=0.3, callbacks=[tb])
 
 # save training history plot
