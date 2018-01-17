@@ -40,7 +40,15 @@ mean = np.mean(training_images)  # mean for data centering
 std = np.std(training_images)  # std for data normalization
 training_images -= mean
 training_images /= std
-train_images = training_images/255.
+#train_images = training_images/255.
+b=training_images[:,:,:,0]
+g=training_images[:,:,:,1]
+r=training_images[:,:,:,2]
+sum=b+g+r
+training_images[:,:,:,0]=b/sum*255.0
+training_images[:,:,:,1]=g/sum*255.0
+training_images[:,:,:,2]=r/sum*255.0
+
 
 # viz check
 # plt.figure()
@@ -50,8 +58,7 @@ train_images = training_images/255.
 
 tb = TensorBoard(log_dir='logs', histogram_freq=False,  write_graph=False, write_images=False)
 
-
-history = model.fit(training_images.reshape(len(training_images),img_rows, img_cols,1),
+history = model.fit(training_images,
                     training_masks.reshape(len(training_images),img_rows, img_cols,1),
                     batch_size=4, epochs=30, shuffle=True,
                     validation_split=0.3, callbacks=[tb])

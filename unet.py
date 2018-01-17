@@ -50,7 +50,7 @@ def unet(img_rows, img_cols):
 
 
 def unet2(img_rows, img_cols):
-    inputs = Input((img_rows, img_cols, 1))
+    inputs = Input((img_rows, img_cols, 3))
     conv1 = Conv2D(32, (3, 3), activation='relu', padding='same')(inputs)
     conv1 = Conv2D(32, (3, 3), activation='relu', padding='same')(conv1)
     pool1 = MaxPooling2D(pool_size=(2, 2))(conv1)

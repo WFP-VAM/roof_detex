@@ -9,7 +9,7 @@ import pandas as pd
 # data loading routines ----------------------------------
 def get_image(image_path):
     image = Image.open(image_path, 'r')
-    #image = image.convert('RGB')
+    image = image.convert('RGB')
     image = np.array(image)
     return image
 
