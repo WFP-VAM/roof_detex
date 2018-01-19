@@ -31,7 +31,7 @@ for ix, row in training_data.iterrows():
 
     # write to folder
     im = Image.fromarray(tmp.astype(np.uint8))
-    im.save("masks/2class/"+file)
+    im.save("masks/2/"+file)
 
 
 # # Wanna see?
