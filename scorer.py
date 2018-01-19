@@ -32,7 +32,7 @@ def main(image, img_rows, img_cols):
     plt.figure()
     plt.imshow(img)
     plt.imshow(res.reshape(img_rows, img_cols), alpha=0.6)
-    #plt.imshow(get_image("masks/" + image).astype(np.uint8)*255, cmap='gray', alpha=0.6)
+    #plt.imshow(get_image("masks_1class/" + image).astype(np.uint8)*255, cmap='gray', alpha=0.6)
     plt.show()
 
 

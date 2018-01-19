@@ -3,7 +3,7 @@ import os
 import matplotlib.pyplot as plt
 from tensorflow.python.keras.callbacks import TensorBoard
 from utils import get_image, save_history_plot
-from unet import unet, unet2
+from unet import unet
 
 
 # PARAMETERS ------------
@@ -18,11 +18,11 @@ for file in os.listdir('GiveDirectlyData/data/images'):
         data = get_image('GiveDirectlyData/data/images/' + file)
         training_images.append(data[:img_rows,:])
 
-# get masks -------------------------------
+# get masks_1class -------------------------------
 training_masks = []
-for file in os.listdir('masks'):
+for file in os.listdir('masks/2class'):
     if file.endswith(".png"):
-        data = get_image('masks/' + file)
+        data = get_image('masks/2class/' + file)
         training_masks.append(data[:img_rows,:])
 
 
@@ -31,16 +31,15 @@ training_images = np.array(training_images) #.reshape(len(training_images), 400,
 training_masks = np.array(training_masks)[:, :, :, 0]#.reshape(len(training_masks), 400, 400, 1)
 
 # instantiate model ----------------------
-# model = unet(img_rows, img_cols)
-model = unet2(img_rows, img_cols)  # with dropout
+model = unet(img_rows, img_cols)  # with dropout
+#model.load_weights('models/unet_10_jk0.7878') # pre trained weights from this guy https://www.kaggle.com/drn01z3/end-to-end-baseline-with-u-net-keras
 
-# normalize images
+# normalize RGB images
 training_images = training_images.astype('float32')
 mean = np.mean(training_images)  # mean for data centering
 std = np.std(training_images)  # std for data normalization
 training_images -= mean
 training_images /= std
-#train_images = training_images/255.
 b=training_images[:,:,:,0]
 g=training_images[:,:,:,1]
 r=training_images[:,:,:,2]
@@ -60,11 +59,11 @@ tb = TensorBoard(log_dir='logs', histogram_freq=False,  write_graph=False, write
 
 history = model.fit(training_images,
                     training_masks.reshape(len(training_images),img_rows, img_cols,1),
-                    batch_size=4, epochs=30, shuffle=True,
+                    batch_size=4, epochs=10, shuffle=True,
                     validation_split=0.3, callbacks=[tb])
 
 # save training history plot
 save_history_plot(history, 'training_history.png')
 
 # save model
-model.save('UNET_model.h5')
+model.save('UNET_model_2class.h5')
