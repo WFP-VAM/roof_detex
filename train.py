@@ -20,15 +20,15 @@ for file in os.listdir('GiveDirectlyData/data/images'):
 
 # get masks_1class -------------------------------
 training_masks = []
-for file in os.listdir('masks/2class'):
+for file in os.listdir('masks/1/masks'):
     if file.endswith(".png"):
-        data = get_image('masks/2class/' + file)
+        data = get_image('masks/1/masks/' + file)
         training_masks.append(data[:img_rows,:])
 
 
 # reshape ---------------------------------
 training_images = np.array(training_images) #.reshape(len(training_images), 400, 400, 3)
-training_masks = np.array(training_masks)[:, :, :, 0]#.reshape(len(training_masks), 400, 400, 1)
+training_masks = np.array(training_masks)[:, :, :, 0].reshape(len(training_masks), 400, 400, 1)
 
 # instantiate model ----------------------
 model = unet(img_rows, img_cols)  # with dropout
@@ -58,7 +58,7 @@ training_images[:,:,:,2]=r/sum*255.0
 tb = TensorBoard(log_dir='logs', histogram_freq=False,  write_graph=False, write_images=False)
 
 history = model.fit(training_images,
-                    training_masks.reshape(len(training_images),img_rows, img_cols,1),
+                    training_masks,
                     batch_size=4, epochs=10, shuffle=True,
                     validation_split=0.3, callbacks=[tb])
 
