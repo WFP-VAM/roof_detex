@@ -52,9 +52,9 @@ training_images[:,:,:,2]=r/sum*255.0
 # generators for data augmentation -------
 seed = 1
 generator_x = ImageDataGenerator(
-    vertical_flip=True)
+    vertical_flip=False)
 
-generator_x.fit(training_images, augment=True, seed=seed)
+generator_x.fit(training_images, augment=False, seed=seed)
 
 # load model
 model = unet(img_rows, img_cols, classes=classes)
