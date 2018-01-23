@@ -52,7 +52,7 @@ training_images[:,:,:,2]=r/sum*255.0
 # generators for data augmentation -------
 seed = 1
 generator_x = ImageDataGenerator(
-    vertical_flip=False)
+    vertical_flip=True)
 
 generator_x.fit(training_images, augment=True, seed=seed)
 
