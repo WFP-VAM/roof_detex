@@ -1,10 +1,10 @@
-import numpy as np
 import os
-import matplotlib.pyplot as plt
+
+import numpy as np
 from tensorflow.python.keras.callbacks import TensorBoard
 from utils import get_image, save_history_plot
-from unet import unet
 
+from src.unet import unet
 
 # PARAMETERS ------------
 img_rows, img_cols = 400, 400

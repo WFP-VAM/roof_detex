@@ -1,6 +1,8 @@
 import numpy as np
 from PIL import Image
-from utils import load_training_metadata
+
+from src.utils import load_training_metadata
+
 buffer = 4
 
 # get images metadata -------------------------------------------

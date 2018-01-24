@@ -1,7 +1,8 @@
 from tensorflow.python.keras.layers import Input, concatenate, Conv2D, MaxPooling2D, Conv2DTranspose, Dropout
-from tensorflow.python.keras.optimizers import Adam
 from tensorflow.python.keras.models import Model
-from utils import dice_coef_loss, dice_coef
+from tensorflow.python.keras.optimizers import Adam
+
+from src.utils import dice_coef_loss, dice_coef
 
 
 def unet(img_rows, img_cols, classes=1, conv_size=3):

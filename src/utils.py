@@ -42,9 +42,9 @@ def save_history_plot(history, path):
 # load training metadata
 def load_training_metadata():
     # Load training data
-    json_data = open('GiveDirectlyData/data/train-data-2014-01-13.json')
+    json_data = open('GiveDirectlyData/train-data-2014-01-13.json')
     roof_data = [json.loads(json_line) for json_line in json_data]
-    image_meta = pd.read_csv('GiveDirectlyData/data/image_metadata.csv')
+    image_meta = pd.read_csv('GiveDirectlyData/image_metadata.csv')
     roof_train = pd.DataFrame(roof_data)
     roof_train['image_tag'] = roof_train.image.map(lambda name: name.strip().split('-')[0])
     roof_train['image'] = roof_train.image.map(lambda name: name.strip())
@@ -52,3 +52,14 @@ def load_training_metadata():
     # Merge Training data
     all_train = pd.merge(image_meta, roof_train, left_on='GDID', right_on='image_tag')
     return all_train
+
+
+# can use in ImageDataGEnerator with argument "preprocessing_function=random_crop" ----------------------
+def random_crop(x, random_crop_size=(256, 256), **kwargs):
+    np.random.seed(10)
+    w, h = x.shape[0], x.shape[1]
+    rangew = (w - random_crop_size[0]) // 2
+    rangeh = (h - random_crop_size[1]) // 2
+    offsetw = 0 if rangew == 0 else np.random.randint(rangew)
+    offseth = 0 if rangeh == 0 else np.random.randint(rangeh)
+    return x[offsetw:offsetw+random_crop_size[0], offseth:offseth+random_crop_size[1], :]

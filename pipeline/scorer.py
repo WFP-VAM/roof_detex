@@ -1,10 +1,11 @@
-import numpy as np
-import matplotlib.pyplot as plt
-import tensorflow as tf
-from tensorflow.python.keras.models import load_model
-from utils import get_image, dice_coef, dice_coef_loss, load_training_metadata
-from number_of_islands import Graph
 import click
+import matplotlib.pyplot as plt
+import numpy as np
+import tensorflow as tf
+from number_of_islands import Graph
+from tensorflow.python.keras.models import load_model
+
+from src.utils import get_image, dice_coef, dice_coef_loss
 
 
 @click.command()
