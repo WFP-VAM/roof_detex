@@ -28,7 +28,7 @@ training_masks = []
 for file in os.listdir(maskDir + '/masks'):
     if file.endswith(".png"):
         data = get_image(maskDir + '/masks/' + file)
-        training_masks.append(data[:img_rows,:])
+        training_masks.append(data[:img_rows, :])
 
 
 # reshape ---------------------------------
@@ -37,22 +37,23 @@ training_masks = np.array(training_masks)[:, :, :, 0].reshape(len(training_masks
 
 # normalize RGB images
 training_images = training_images.astype('float32')
-mean = np.mean(training_images)  # mean for data centering
-std = np.std(training_images)  # std for data normalization
-training_images -= mean
-training_images /= std
-b=training_images[:,:,:,0]
-g=training_images[:,:,:,1]
-r=training_images[:,:,:,2]
-sum=b+g+r
-training_images[:,:,:,0]=b/sum*255.0
-training_images[:,:,:,1]=g/sum*255.0
-training_images[:,:,:,2]=r/sum*255.0
+training_images = training_images/255.
+# mean = np.mean(training_images)  # mean for data centering
+# std = np.std(training_images)  # std for data normalization
+# training_images -= mean
+# training_images /= std
+# b = training_images[:,:,:,0]
+# g = training_images[:,:,:,1]
+# r = training_images[:,:,:,2]
+# sum = b+g+r
+# training_images[:,:,:,0]=b/sum*255.0
+# training_images[:,:,:,1]=g/sum*255.0
+# training_images[:,:,:,2]=r/sum*255.0
 
 
 # generators for data augmentation -------
-generator_x = ImageDataGenerator(horizontal_flip=True)  # preprocessing_function=random_crop)
-generator_y = ImageDataGenerator(horizontal_flip=True)  # preprocessing_function=random_crop)
+generator_x = ImageDataGenerator() #horizontal_flip=True)  # preprocessing_function=random_crop)
+generator_y = ImageDataGenerator() #horizontal_flip=False)  # preprocessing_function=random_crop)
 
 
 # flow from directory (no need to fit without normalizaiton
