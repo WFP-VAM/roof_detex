@@ -62,7 +62,12 @@ model = unet(None, None, classes=classes)
 model.fit_generator(data_generator(training_list,
                                  batch_size,
                                  training_size),
+                    steps_per_epoch = len(training_list)/batch_size,
                     validation_data=data_generator(validation_list,
                                                    batch_size,
                                                    validation_size),
-                    validation_steps=16, steps_per_epoch=100, epochs=epochs)
+                    validation_steps=len(validation_list)/batch_size,
+                    epochs=epochs)
+
+# save model
+model.save('UNET_model_batch.h5')
