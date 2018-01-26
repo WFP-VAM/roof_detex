@@ -1,4 +1,5 @@
-from src.utils import get_image, load_training_metadata, save_history_plot
+import os
+from src.utils import get_image, save_history_plot
 from src.unet import unet
 import numpy as np
 from random import shuffle
@@ -13,7 +14,11 @@ epochs = 10
 split = 0.8
 
 # list of files -----------------------------
-data_list = load_training_metadata()['image']
+data_list = []
+for file in os.listdir(IMAGES_DIR):
+    if file.endswith(".png"):
+        data_list.append(file)
+
 shuffle(data_list)  # shuffle list
 
 training_size = int(len(data_list)*split)
@@ -72,7 +77,7 @@ def data_generator(files, batch_size):
             batch_end += batch_size
 
 
-model = unet(None, None, classes=classes, conv_size=5)
+model = unet(None, None, classes=classes, conv_size=3)
 
 history = model.fit_generator(data_generator(training_list, batch_size),
                     validation_data=data_generator(validation_list, batch_size),
