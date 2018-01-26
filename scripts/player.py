@@ -37,28 +37,17 @@ training_masks = np.array(training_masks)[:, :, :, 0].reshape(len(training_masks
 
 # normalize RGB images
 training_images = training_images.astype('float32')
-training_images = training_images/255.
-# mean = np.mean(training_images)  # mean for data centering
-# std = np.std(training_images)  # std for data normalization
-# training_images -= mean
-# training_images /= std
-# b = training_images[:,:,:,0]
-# g = training_images[:,:,:,1]
-# r = training_images[:,:,:,2]
-# sum = b+g+r
-# training_images[:,:,:,0]=b/sum*255.0
-# training_images[:,:,:,1]=g/sum*255.0
-# training_images[:,:,:,2]=r/sum*255.0
-
 
 # generators for data augmentation -------
-generator_x = ImageDataGenerator() #horizontal_flip=True)  # preprocessing_function=random_crop)
-generator_y = ImageDataGenerator() #horizontal_flip=False)  # preprocessing_function=random_crop)
+generator_x = ImageDataGenerator(rescale=1./255., horizontal_flip=False)
+generator_y = ImageDataGenerator(horizontal_flip=False)
 
 
 # flow from directory (no need to fit without normalizaiton
-dgdx = generator_x.flow_from_directory(inputDir, class_mode=None, target_size=(img_rows,img_cols), batch_size=2, seed=0)
-dgdy = generator_y.flow_from_directory(maskDir,  class_mode=None, target_size=(img_rows,img_cols), batch_size=2, seed=0, color_mode='grayscale')
+dgdx = generator_x.flow_from_directory(inputDir, class_mode=None,
+                                       target_size=(img_rows,img_cols), batch_size=2, seed=0, save_to_dir='augm/images')
+dgdy = generator_y.flow_from_directory(maskDir,  class_mode=None,
+                                       target_size=(img_rows,img_cols), batch_size=2, seed=0,color_mode='grayscale',save_to_dir='augm/masks')
 
 # synchronize two generator and combine it into one
 train_generator = zip(dgdx, dgdy)
