@@ -1,4 +1,4 @@
-from src.utils import get_image, load_training_metadata
+from src.utils import get_image, load_training_metadata, save_history_plot
 from src.unet import unet
 import numpy as np
 from random import shuffle
@@ -72,8 +72,14 @@ def data_generator(files, batch_size):
             batch_end += batch_size
 
 
-model = unet(None, None, classes=classes)
+model = unet(None, None, classes=classes, conv_size=5)
 
-model.fit_generator(data_generator(training_list, batch_size),
+history = model.fit_generator(data_generator(training_list, batch_size),
                     validation_data=data_generator(validation_list, batch_size),
                     validation_steps=validation_size/batch_size, steps_per_epoch=training_size/batch_size, epochs=epochs)
+
+# save training history plot
+save_history_plot(history, 'training_history.png')
+
+# save model
+model.save('UNET_model_batch_1class.h5')
