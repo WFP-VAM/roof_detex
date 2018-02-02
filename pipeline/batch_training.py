@@ -7,11 +7,12 @@ from random import shuffle
 # parameters (tbd) -------------------------
 IMAGES_DIR = 'VAMdata/images/' #'GiveDirectlyData/data/images/'
 MASKS_DIR = 'VAMdata/masks/' # 'masks/1/masks/'
-img_rows, img_cols = 255, 255
+img_rows, img_cols = 256, 256
 classes = 1
-batch_size = 4
-epochs = 10
+batch_size = 2
+epochs = 100
 split = 0.8
+model_path = 'models/UNET_model_1class_aug.h5'
 
 # list of files -----------------------------
 data_list = []
@@ -79,6 +80,10 @@ def data_generator(files, batch_size):
 
 model = unet(None, None, classes=classes, conv_size=3)
 
+if model_path:
+    model.load_weights(model_path)
+
+
 history = model.fit_generator(data_generator(training_list, batch_size),
                     validation_data=data_generator(validation_list, batch_size),
                     validation_steps=validation_size/batch_size, steps_per_epoch=training_size/batch_size, epochs=epochs)
@@ -87,4 +92,4 @@ history = model.fit_generator(data_generator(training_list, batch_size),
 save_history_plot(history, 'training_history.png')
 
 # save model
-model.save('UNET_model_batch_1class.h5')
+model.save('models/model_tlearn2.h5')

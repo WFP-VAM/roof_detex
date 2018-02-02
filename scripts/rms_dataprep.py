@@ -48,7 +48,7 @@ def crop_center(img, cropx, cropy, centrex, centrey, masks=False):
 y, x = img.shape[0], img.shape[1]
 for offx, offy in zip([-500, -400, -300,-200, -100, 0, 100, 200, 300, 400, 500],[-400, -300, -200, -100, 0, 100, 200, 300, 400]):
 
-    im_crop = crop_center(img, 2556, 256, centrex=x // 2 + offx, centrey=y // 2 + offy)
+    im_crop = crop_center(img, 256, 256, centrex=x // 2 + offx, centrey=y // 2 + offy)
     mk_crop = crop_center(mask, 256, 256, centrex=x // 2 + offx, centrey=y // 2 + offy, masks=True)
 
     im = Image.fromarray(im_crop.astype(np.uint8))
