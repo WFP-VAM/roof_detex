@@ -4,6 +4,7 @@ from tensorflow.python.keras import backend as K
 import matplotlib.pyplot as plt
 import json
 import pandas as pd
+import os
 
 
 # data loading routines ----------------------------------
@@ -54,12 +55,15 @@ def load_training_metadata():
     return all_train
 
 
-# can use in ImageDataGEnerator with argument "preprocessing_function=random_crop" ----------------------
-def random_crop(x, random_crop_size=(256, 256), **kwargs):
-    np.random.seed(10)
-    w, h = x.shape[0], x.shape[1]
-    rangew = (w - random_crop_size[0]) // 2
-    rangeh = (h - random_crop_size[1]) // 2
-    offsetw = 0 if rangew == 0 else np.random.randint(rangew)
-    offseth = 0 if rangeh == 0 else np.random.randint(rangeh)
-    return x[offsetw:offsetw+random_crop_size[0], offseth:offseth+random_crop_size[1], :]
+def flip_pm90_in_dir(directory, bad_images=['None']):
+    """ rotates all the images in a directory by + and - 90 degrees"""
+    for file in os.listdir(directory):
+        if file.endswith(".png") & (str(file) not in bad_images):
+            print(str(file))
+            im = Image.open(directory + file, 'r')
+
+            imp = im.rotate(90)
+            imp.save(directory + file[:-4] + '_p90.png')
+
+            imm = im.rotate(-90)
+            imm.save(directory + file[:-4] + '_m90.png')
