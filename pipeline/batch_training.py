@@ -5,9 +5,9 @@ import numpy as np
 from random import shuffle
 
 # parameters (tbd) -------------------------
-IMAGES_DIR = 'GiveDirectlyData/data/images/'
-MASKS_DIR = 'masks/1/masks/'
-img_rows, img_cols = 400, 400
+IMAGES_DIR = 'VAMdata/images/' #'GiveDirectlyData/data/images/'
+MASKS_DIR = 'VAMdata/masks/' # 'masks/1/masks/'
+img_rows, img_cols = 255, 255
 classes = 1
 batch_size = 4
 epochs = 10
