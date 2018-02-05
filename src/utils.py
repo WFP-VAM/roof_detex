@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 import json
 import pandas as pd
 import os
+import fnmatch
 
 
 # data loading routines ----------------------------------
@@ -55,15 +56,25 @@ def load_training_metadata():
     return all_train
 
 
-def flip_pm90_in_dir(directory, bad_images=['None']):
-    """ rotates all the images in a directory by + and - 90 degrees"""
+# image augmentation
+def flip_pm90_in_dir(directory, bad_images=['None'], contains=None):
+    """ rotates all the images in a directory by + and - 90 degrees.
+    bad_images: list of images not to augment, optional
+    contains: string that the file name has to contain, optional
+    """
+
+    def rotator(directory, file):
+        print(str(file))
+        im = Image.open(directory + file, 'r')
+        imp = im.rotate(90)
+        imp.save(directory + file[:-4] + '_p90.png')
+        imm = im.rotate(-90)
+        imm.save(directory + file[:-4] + '_m90.png')
+
     for file in os.listdir(directory):
         if file.endswith(".png") & (str(file) not in bad_images):
-            print(str(file))
-            im = Image.open(directory + file, 'r')
+            if contains:
+                if fnmatch.fnmatch(file, "*"+contains+"*"): rotator(directory, file)
+            else:
+                rotator(directory, file)
 
-            imp = im.rotate(90)
-            imp.save(directory + file[:-4] + '_p90.png')
-
-            imm = im.rotate(-90)
-            imm.save(directory + file[:-4] + '_m90.png')

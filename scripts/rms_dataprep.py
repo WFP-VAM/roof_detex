@@ -4,17 +4,23 @@ import matplotlib.pyplot as plt
 from PIL import Image
 from src.utils import flip_pm90_in_dir
 
+# parameters
+img_size = 256
+img_dir = 'VAMdata/images/'
+masks_dir = 'VAMdata/masks/'
+raster_image = 'CAR_MLstack_Elevage_12Oct2017_crop.tif'
+
 # load raster --------------------------------------------
-rs = gdal.Open('VAMdata/MLstack_ari_koukouri_c.tif')
-rs = np.array(rs.ReadAsArray())
+rs = gdal.Open('VAMdata/'+raster_image)
+rs = np.array(rs.ReadAsArray()).astype('uint8')
+print('raster shape: ', rs.shape)
 
 # get image and mask -----------------------------------
-img = np.moveaxis(rs[:3,:,:], 0, 2) # TODO: I think order of colours is wrong? plt.imshow(img)
+img = np.moveaxis(rs[:3,:,:], 0, 2)
 mask = rs[3,:,:]
 
-
 # add buffer to mask ----------------------------------
-buffer = 4
+buffer = 3
 tmp = np.zeros((mask.shape))
 for y in range(mask.shape[0]):
     for x in range(mask.shape[1]):
@@ -28,38 +34,34 @@ for y in range(mask.shape[0]):
 mask = tmp
 
 # mask[mask > 0.].sum()
-# plt.figure()
-# plt.imshow(img)
-# plt.imshow(mask, cmap='gray', alpha=0.6)
-# plt.show()
+plt.figure()
+plt.imshow(img)
+plt.imshow(mask, cmap='gray', alpha=0.6)
+plt.show()
 
 
 # crop image ------------------------------------------
-def crop_center(img, cropx, cropy, centrex, centrey, masks=False):
-    startx = centrex -(cropx//2)
-    starty = centrey -(cropy//2)
-    # print(startx, starty)
-    if masks:
-        return img[starty:starty + cropy, startx:startx + cropx]
-    else:
-        return img[starty:starty + cropy, startx:startx + cropx, :]
+def crop(image, mask, img_dir, msk_dir, height ,width):
+    im = Image.fromarray(image.astype('uint8'), mode='RGB')
+    mk = Image.fromarray(mask.astype('uint8'))
+    imgwidth, imgheight = im.size
 
+    for i in range(imgheight//height):
+        for j in range(imgwidth//width):
+            # print (i,j)
+            box = (j*width, i*height, (j+1)*width, (i+1)*height)
+            im_crop = im.crop(box)
+            mk_crop = mk.crop(box)
 
-y, x = img.shape[0], img.shape[1]
-for offx, offy in zip([-500, -400, -300,-200, -100, 0, 100, 200, 300, 400, 500],[-400, -300, -200, -100, 0, 100, 200, 300, 400]):
+            arr = np.array(mk_crop)
+            # only save the cropped picture if there is at least one hut
+            if arr.any() == 1:
+                im_crop.save(img_dir + raster_image + '_' + str(i) + '_' + str(j) + '.png')
+                mk_crop.save(msk_dir + raster_image + '_' + str(i) + '_' + str(j) + '.png')
 
-    im_crop = crop_center(img, 256, 256, centrex=x // 2 + offx, centrey=y // 2 + offy)
-    mk_crop = crop_center(mask, 256, 256, centrex=x // 2 + offx, centrey=y // 2 + offy, masks=True)
-
-    im = Image.fromarray(im_crop.astype(np.uint8))
-    mk = Image.fromarray(mk_crop.astype(np.uint8))
-
-    im.save("VAMdata/images/MLstack_ari_koukouri_c_" + str(offx) + str(offy) + '.png')
-    mk.save("VAMdata/masks/MLstack_ari_koukouri_c_" + str(offx) + str(offy) + '.png')
+crop(img, mask, img_dir, masks_dir, img_size, img_size)
 
 
 # augmentation ---------------------------------------
-# plt.imshow(np.asarray(Image.open('VAMdata/images/MLstack_ari_koukouri_c_-1000.png')))
-# plt.imshow(np.asarray(Image.open('VAMdata/masks/MLstack_ari_koukouri_c_-1000.png')), alpha=0.6)
-flip_pm90_in_dir('VAMdata/images/')
-flip_pm90_in_dir('VAMdata/masks/')
+flip_pm90_in_dir(img_dir, contains='CAR_MLstack_Elevage_12Oct2017_crop')
+flip_pm90_in_dir(masks_dir, contains='CAR_MLstack_Elevage_12Oct2017_crop')
