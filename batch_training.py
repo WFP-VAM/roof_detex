@@ -1,6 +1,6 @@
 import os
 from src.utils import get_image, save_history_plot
-from src.unet import unet
+from src.unet import unet, unet_heavreg
 import numpy as np
 from random import shuffle
 import click
@@ -83,7 +83,7 @@ def trainer(image_dir, masks_dir, model_path_in, model_path_out):
                 batch_end += batch_size
 
 
-    model = unet(None, None, classes=classes, conv_size=3)
+    model = unet_heavreg(None, None, classes=classes, conv_size=3)
 
     if model_path_in:
         model.load_weights(model_path_in)

@@ -8,7 +8,7 @@ from src.utils import flip_pm90_in_dir
 img_size = 256
 img_dir = 'VAMdata/images/'
 masks_dir = 'VAMdata/masks/'
-raster_image = 'CAR_MLstack_Elevage_12Oct2017_crop.tif'
+raster_image = 'garin_dogo_05jun2017_comp.tif'
 
 # load raster --------------------------------------------
 rs = gdal.Open('VAMdata/'+raster_image)
@@ -63,5 +63,5 @@ crop(img, mask, img_dir, masks_dir, img_size, img_size)
 
 
 # augmentation ---------------------------------------
-flip_pm90_in_dir(img_dir, contains='CAR_MLstack_Elevage_12Oct2017_crop')
-flip_pm90_in_dir(masks_dir, contains='CAR_MLstack_Elevage_12Oct2017_crop')
+flip_pm90_in_dir(img_dir, contains='garin_dogo_')
+flip_pm90_in_dir(masks_dir, contains='garin_dogo_')
