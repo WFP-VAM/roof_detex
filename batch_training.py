@@ -4,7 +4,7 @@ from src.unet import unet, unet_heavreg
 import numpy as np
 from random import shuffle
 import click
-from tensorflow.python.keras.callbacks import TensorBoard
+from tensorflow.python.keras.callbacks import TensorBoard, EarlyStopping
 from time import time
 
 
@@ -20,7 +20,7 @@ def trainer(image_dir, masks_dir, model_path_in, model_path_out):
     img_rows, img_cols = 256, 256
     classes = 1
     batch_size = 4
-    epochs = 50
+    epochs = 30
     split = 0.8
 
     # list of files -----------------------------
@@ -91,13 +91,15 @@ def trainer(image_dir, masks_dir, model_path_in, model_path_out):
         model.load_weights(model_path_in)
         print('INFO: model loaded ...')
 
+    # callbacks
     tensorboard = TensorBoard(log_dir="logs/{}".format(time()), write_graph=True)
+    stopper = EarlyStopping(monitor='val_loss', min_delta=0.0001, patience=2, verbose=0, mode='auto')
 
     print('INFO: training ...')
     history = model.fit_generator(data_generator(training_list, batch_size),
                         validation_data=data_generator(validation_list, batch_size),
                         validation_steps=validation_size/batch_size, steps_per_epoch=training_size/batch_size,
-                        epochs=epochs, callbacks=[tensorboard])
+                        epochs=epochs, callbacks=[tensorboard, stopper])
 
     # save training history plot
     save_history_plot(history, 'training_history.png')
