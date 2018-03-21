@@ -13,7 +13,8 @@ from time import time
 @click.option('--masks_dir', default="VAMdata/masks/")  # 'GiveDirectlyData/data/masks/1/masks/'
 @click.option('--model_path_in', default=None)  # 'models/UNET_model_1class_aug.h5'
 @click.option('--model_path_out', default=None)  # 'models/model_tf1.h5'
-def trainer(image_dir, masks_dir, model_path_in, model_path_out):
+@click.option('--filename', default=None)
+def trainer(image_dir, masks_dir, model_path_in, model_path_out, filename):
     # parameters (tbd) -------------------------
     IMAGES_DIR = image_dir
     MASKS_DIR = masks_dir
@@ -27,7 +28,8 @@ def trainer(image_dir, masks_dir, model_path_in, model_path_out):
     data_list = []
     for file in os.listdir(IMAGES_DIR):
         if file.endswith(".png"):
-            data_list.append(file)
+            if filename and (filename in file):
+                data_list.append(file)
 
     shuffle(data_list)  # shuffle list
 
