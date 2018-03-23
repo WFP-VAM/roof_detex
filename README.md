@@ -1,6 +1,8 @@
-**WHY:** Automate the monitoring of idp and refugee camps.<br>
-**WHAT:** Detecting and counting huts/houses in camps in areas of interest of the World Food Programme.<br>
-**HOW:** ConvNets trained on internally and externally labelled satellite imaginery.<br>
+! WORK IN PROGRESS !
+
+*WHY:* Automate the monitoring of idp and refugee camps.<br>
+*WHAT:* Detecting and counting huts/houses in camps in areas of interest of the World Food Programme.<br>
+*HOW:* ConvNets trained on internally and externally labelled satellite imaginery.<br>
 
 # Data
 ## GMaps
