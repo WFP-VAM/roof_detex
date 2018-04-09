@@ -8,7 +8,7 @@ from src.utils import flip_pm90_in_dir
 img_size = 256
 img_dir = 'VAMdata/images/'
 masks_dir = 'VAMdata/masks/'
-raster_image = 'garin_dogo_05jun2017_comp.tif'
+raster_image = 'stack_palorinya_22Jan2018.tif'
 
 # load raster --------------------------------------------
 rs = gdal.Open('VAMdata/'+raster_image)
@@ -61,7 +61,12 @@ def crop(image, mask, img_dir, msk_dir, height ,width):
 
 crop(img, mask, img_dir, masks_dir, img_size, img_size)
 
+# checks
+im = np.asarray(Image.open('VAMdata/images/stack_palorinya_22Jan2018.tif_33_21.png'))
+mk = np.asarray(Image.open('VAMdata/masks/stack_palorinya_22Jan2018.tif_33_21.png'))
+plt.imshow(im)
+plt.imshow(mk, cmap='gray', alpha=0.2)
 
 # augmentation ---------------------------------------
-flip_pm90_in_dir(img_dir, contains='garin_dogo_')
-flip_pm90_in_dir(masks_dir, contains='garin_dogo_')
+flip_pm90_in_dir('VAMdata/images/', contains='stack_palorinya')
+flip_pm90_in_dir('VAMdata/masks/', contains='stack_palorinya')
