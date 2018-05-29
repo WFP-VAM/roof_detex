@@ -20,8 +20,8 @@ def trainer(image_dir, masks_dir, model_path_in, model_path_out, filename):
     MASKS_DIR = masks_dir
     img_rows, img_cols = 256, 256
     classes = 1
-    batch_size = 4
-    epochs = 30
+    batch_size = 8
+    epochs = 20
     split = 0.8
 
     # list of files -----------------------------
