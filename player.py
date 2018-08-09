@@ -79,15 +79,15 @@ model.save('UNET_model_1class_aug.h5')
 #
 from PIL import Image
 import numpy as np
-import os
-directory = 'P:/VAM/spacenet/images/'
-pg = Image.open(directory + '2.png', 'r')
-pg = pg.convert('RGB')
-pg = pg.resize((256,256))
-im = np.array(pg)
-
 from tensorflow.python.keras.models import load_model
 from src.utils import dice_coef, dice_coef_loss
 
 model = load_model('models/model_buildings.h5', custom_objects={'dice_coef': dice_coef})
-model.predict(im.reshape(1,256,256,3)/255.)
+directory = 'P:/VAM/spacenet/images/'
+pg = Image.open(directory + '17.png', 'r')
+pg = pg.convert('RGB')
+pg = pg.resize((512, 512))
+im = np.array(pg)
+
+res = model.predict(im.reshape(1,512,512,3))
+np.unique(res)

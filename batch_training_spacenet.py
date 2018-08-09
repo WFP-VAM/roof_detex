@@ -10,19 +10,18 @@ from PIL import Image
 
 
 @click.command()
-@click.option('--image_dir', default="P:/VAM/spacenet/images/") #'GiveDirectlyData/data/images/'
-@click.option('--masks_dir', default="P:/VAM/spacenet/images/")  # 'GiveDirectlyData/data/masks/1/masks/'
-@click.option('--model_path_in', default=None)  # 'models/UNET_model_1class_aug.h5'
-@click.option('--model_path_out', default=None)  # 'models/model_tf1.h5'
-@click.option('--filename', default=None)
-def trainer(image_dir, masks_dir, model_path_in, model_path_out, filename):
+@click.option('--image_dir', default="P:/VAM/spacenet/images/")
+@click.option('--masks_dir', default="P:/VAM/spacenet/images/")
+@click.option('--model_path_in', default='models/model_buildings.h5')
+@click.option('--model_path_out', default=None)
+def trainer(image_dir, masks_dir, model_path_in, model_path_out):
     # parameters (tbd) -------------------------
     IMAGES_DIR = image_dir
     MASKS_DIR = masks_dir
     img_rows, img_cols = 256, 256
     classes = 1
     batch_size = 4
-    epochs = 30
+    epochs = 10
     split = 0.8
 
     # list of files -----------------------------
@@ -86,15 +85,12 @@ def trainer(image_dir, masks_dir, model_path_in, model_path_out, filename):
 
                 X = image_preprocessing(X)
 
-                print(X.shape)
-                print(Y.shape)
-
                 yield (X, Y.reshape(limit-batch_start,img_rows,img_cols,classes))
 
                 batch_start += batch_size
                 batch_end += batch_size
 
-    model = unet_heavreg(None, None, classes=classes, conv_size=3)
+    model = unet(None, None)
 
     if model_path_in:
         model.load_weights(model_path_in)
