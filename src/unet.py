@@ -102,6 +102,6 @@ def unet_heavreg(img_rows, img_cols, classes=1, conv_size=3):
 
     model = Model(inputs=[inputs], outputs=[conv10])
 
-    model.compile(optimizer=Adam(lr=0.00001, decay=0.0000001), loss=dice_coef_loss, metrics=[dice_coef])
+    model.compile(optimizer=Adam(lr=0.0001, decay=0.000001), loss=dice_coef_loss, metrics=[dice_coef])
 
     return model
