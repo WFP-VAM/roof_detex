@@ -5,7 +5,7 @@ from tensorflow.python.keras.optimizers import Adam
 from src.utils import dice_coef_loss, dice_coef
 
 
-def unet(img_rows, img_cols, start_neurons=4):
+def unet(img_rows, img_cols, start_neurons=8):
     # Build U-Net modelz
     input_img = Input((img_rows, img_cols, 3), name='img')
 

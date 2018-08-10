@@ -10,18 +10,18 @@ from PIL import Image
 
 
 @click.command()
-@click.option('--image_dir', default="P:/VAM/spacenet/images/")
-@click.option('--masks_dir', default="P:/VAM/spacenet/images/")
-@click.option('--model_path_in', default='models/model_buildings.h5')
-@click.option('--model_path_out', default=None)
+@click.option('--image_dir', default="Data/spacenet/images/")
+@click.option('--masks_dir', default="Data/spacenet/masks/")
+@click.option('--model_path_in', default=None)
+@click.option('--model_path_out', default='models/model_buildings.h5')
 def trainer(image_dir, masks_dir, model_path_in, model_path_out):
     # parameters (tbd) -------------------------
     IMAGES_DIR = image_dir
     MASKS_DIR = masks_dir
-    img_rows, img_cols = 256, 256
+    img_rows, img_cols = 512, 512
     classes = 1
     batch_size = 4
-    epochs = 10
+    epochs = 30
     split = 0.8
 
     # list of files -----------------------------
@@ -98,7 +98,7 @@ def trainer(image_dir, masks_dir, model_path_in, model_path_out):
 
     # callbacks
     tensorboard = TensorBoard(log_dir="logs/{}".format(time()), write_graph=True)
-    stopper = EarlyStopping(monitor='val_loss', min_delta=0.0001, patience=2, verbose=0, mode='auto')
+    stopper = EarlyStopping(monitor='val_loss', min_delta=0.00001, patience=3, verbose=0, mode='auto')
 
     print('INFO: training ...')
     history = model.fit_generator(data_generator(training_list, batch_size),
