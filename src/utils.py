@@ -6,6 +6,8 @@ import json
 import pandas as pd
 import os
 import fnmatch
+from scipy.misc import bytescale
+from skimage.exposure import rescale_intensity
 
 
 # data loading routines ----------------------------------
@@ -78,3 +80,13 @@ def flip_pm90_in_dir(directory, bad_images=['None'], contains=None):
             else:
                 rotator(directory, file)
 
+
+def uint16_to_uint8(mat):
+    """ satellite images have often higher bit-depths! utility to convert them to uint8 for TF"""
+    x, y, bands = mat.shape
+    return_stack = np.zeros([x, y, bands], dtype=np.uint8)
+    for b in range(bands):
+        p1_pix, p2_pix = np.percentile(mat[:, :, b], (2, 98))
+        return_stack[:, :, b] = bytescale(rescale_intensity(mat[:, :, b], out_range=(p1_pix, p2_pix)))
+
+    return return_stack

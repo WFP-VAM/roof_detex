@@ -3,6 +3,7 @@ import numpy as np
 import geojson
 from rasterio import features
 from PIL import Image
+from src.utils import uint16_to_uint8
 
 # parameters
 img_dir = 'P:/VAM/spacenet/AOI_5_Khartoum_Train/RGB-PanSharpen/'
@@ -13,9 +14,8 @@ for i in range(1, 1687):
     # load raster --------------------------------------------
     try:
         rs = rasterio.open(img_dir+'RGB-PanSharpen_AOI_5_Khartoum_img{}.tif'.format(i))
-        img = np.array(rs.read()).astype('uint8')
+        img = uint16_to_uint8(np.rollaxis(rs.read(), 0, 3))
         print('raster shape: ', img.shape)
-        img = np.rollaxis(img, 0, 3)
 
         # get mask -----------------------------------
         with open(masks_dir+'buildings_AOI_5_Khartoum_img{}.geojson'.format(i)) as f:
@@ -36,11 +36,14 @@ for i in range(1, 1687):
     except rasterio.errors.RasterioIOError:
         print('No image: ', 'RGB-PanSharpen_AOI_5_Khartoum_img{}.tif'.format(i))
 
+from src.utils import flip_pm90_in_dir
+flip_pm90_in_dir('P:/VAM/spacenet/images/')
+flip_pm90_in_dir('P:/VAM/spacenet/masks/')
 
-# check
-pg = Image.open('P:/VAM/spacenet/images/' + '24.png', 'r')
-mk = Image.open('P:/VAM/spacenet/masks/' + '24.png', 'r')
-
-import matplotlib.pyplot as plt
-plt.imshow(np.array(pg))
-plt.imshow(np.array(mk)*100, alpha=0.6)
+# checks
+# pg = Image.open('P:/VAM/spacenet/images/' + '58.png', 'r')
+# mk = Image.open('P:/VAM/spacenet/masks/' + '58.png', 'r')
+#
+# import matplotlib.pyplot as plt
+# plt.imshow(np.array(pg))
+# plt.imshow(np.array(mk)*100, alpha=0.6)
