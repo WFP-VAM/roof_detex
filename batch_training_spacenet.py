@@ -51,8 +51,8 @@ def trainer(image_dir, masks_dir, model_path_in, model_path_out):
         for f in files:
 
             pg = Image.open(directory + f, 'r')
-            pg = pg.convert('RGB')
-            pg = pg.resize((img_rows, img_cols))
+            #pg = pg.convert('RGB')
+            pg = pg.resize((img_rows, img_cols), Image.ANTIALIAS)
             im = np.array(pg)
             images.append(im)
 
@@ -81,7 +81,7 @@ def trainer(image_dir, masks_dir, model_path_in, model_path_out):
                 limit = min(batch_end, size)
 
                 X = np.array(load_images(files[batch_start:limit], IMAGES_DIR))
-                Y = np.array(load_images(files[batch_start:limit], MASKS_DIR))[:, :, :, 0]
+                Y = np.array(load_images(files[batch_start:limit], MASKS_DIR))#[:, :, :, 0]
 
                 X = image_preprocessing(X)
 
@@ -98,7 +98,7 @@ def trainer(image_dir, masks_dir, model_path_in, model_path_out):
 
     # callbacks
     tensorboard = TensorBoard(log_dir="logs/{}".format(time()), write_graph=True)
-    stopper = EarlyStopping(monitor='val_loss', min_delta=0.00001, patience=3, verbose=0, mode='auto')
+    stopper = EarlyStopping(monitor='val_loss', min_delta=0.000001, patience=4, verbose=1, mode='auto')
 
     print('INFO: training ...')
     history = model.fit_generator(data_generator(training_list, batch_size),
