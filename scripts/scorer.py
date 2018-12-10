@@ -4,8 +4,7 @@ import numpy as np
 import tensorflow as tf
 from src.number_of_islands import Graph
 from tensorflow.python.keras.models import load_model
-
-from src.utils import get_image, dice_coef, dice_coef_loss
+from src.utils import dice_coef, dice_coef_loss, load_images
 
 
 @click.command()
@@ -15,7 +14,7 @@ from src.utils import get_image, dice_coef, dice_coef_loss
 def main(image, img_rows, img_cols):
 
     # load model ------------
-    model = load_model("models/UNET_model_1class_aug.h5", custom_objects={'dice_coef': dice_coef, 'dice_coef_loss': dice_coef_loss})
+    model = load_model("models/model_gd.h5", custom_objects={'dice_coef': dice_coef, 'dice_coef_loss': dice_coef_loss})
 
     # SINGLE IMAGE SCORE ------------
     img = np.array(get_image("GiveDirectlyData/data/images/" + image).astype('float32')) #KE2013071529-iron.png
@@ -44,17 +43,15 @@ if __name__ == '__main__':
 
 
 # manual -----------------------------
-model = load_model("models/UNET_model_1class_aug.h5", custom_objects={'dice_coef': dice_coef, 'dice_coef_loss': dice_coef_loss})
-img = np.array(get_image("GiveDirectlyData/data/images/" + 'KE2013071529-iron.png').astype('float32'))
-mask = np.array(get_image("masks/1/masks/" + 'KE2013071529-iron.png').astype('float32'))[:,:,0]
-model.evaluate(img.reshape(1,400,400,3)/255., mask.reshape(1,400,400,1))
-res = model.predict(img.reshape(1,400,400,3)/255.).reshape(400,400)
-res[res > 0.4] = 255.
-res[res <= 0.4] = 0
+IMG_SIZE = 256
+IMG = 'stack_palorinya_22Jan2018.tif_14_4.png'
+model = load_model("models/model_spacenet_vam.h5", custom_objects={'dice_coef_loss': dice_coef_loss, 'dice_coef': dice_coef})
+img = load_images([IMG], "VAMdata/images/", scale=True)[0]
+mask = load_images([IMG], "VAMdata/masks/", labels=True)[0]
+model.evaluate(img.reshape(1,IMG_SIZE,IMG_SIZE,3), mask.reshape(1,IMG_SIZE,IMG_SIZE,1))
+res = model.predict(img.reshape(1,IMG_SIZE,IMG_SIZE,3)).reshape(IMG_SIZE,IMG_SIZE)
+np.histogram(res)
 
-plt.imshow(res, cmap='gray', alpha=0.6)
 
-from PIL import Image
-img = np.array(Image.open("augm/masks/_0_3695.png"))
-plt.imshow(img*100., cmap='gray', alpha=0.6)
-img[img > 0.]
+plt.imshow((img*255.).astype(int))
+plt.imshow(res*255, cmap='RdGy', alpha=0.6)

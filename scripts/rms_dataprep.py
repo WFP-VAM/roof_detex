@@ -2,7 +2,6 @@ from osgeo import gdal
 import numpy as np
 import matplotlib.pyplot as plt
 from PIL import Image
-from src.utils import flip_pm90_in_dir
 
 # parameters
 img_size = 256
@@ -67,6 +66,3 @@ mk = np.asarray(Image.open('VAMdata/masks/stack_palorinya_22Jan2018.tif_33_21.pn
 plt.imshow(im)
 plt.imshow(mk, cmap='gray', alpha=0.2)
 
-# augmentation ---------------------------------------
-flip_pm90_in_dir('VAMdata/images/', contains='stack_palorinya')
-flip_pm90_in_dir('VAMdata/masks/', contains='stack_palorinya')

@@ -8,9 +8,7 @@ import gdal
 
 
 def _get_image_names(base_path, imageId):
-    '''
-    Get the names of the tiff files
-    '''
+    """Get the names of the tiff files"""
     d = {'3': path.join(base_path,'three_band/{}.tif'.format(imageId)),             # (3, 3348, 3403)
          'A': path.join(base_path,'sixteen_band/{}_A.tif'.format(imageId)),         # (8, 134, 137)
          'M': path.join(base_path,'sixteen_band/{}_M.tif'.format(imageId)),         # (8, 837, 851)
@@ -101,23 +99,21 @@ for i in df['ImageId'].unique():
 
 
 # check
-# import gdal
-# from PIL import Image
-#
-# rs = gdal.Open('dstl/three_band/6060_2_3.tif')
-# rs = np.array(rs.ReadAsArray()).astype('uint8')
-# rs = np.moveaxis(rs, 0, -1)
-# rs = Image.fromarray(rs).resize((500,500))
-#
-#
-# mk = Image.open('dstl/masks/6060_2_3.png')
-# mk = np.asarray(mk)
-#
-# import matplotlib.pyplot as plt
-# plt.figure()
-# plt.imshow(rs, vmin=0,vmax=255)
-# plt.imshow(mk, cmap='gray', alpha=0.6)
-# plt.show()
+import gdal
+from PIL import Image
+
+rs = gdal.Open('dstl/three_band/images/6060_2_3.tif')
+rs = np.array(rs.ReadAsArray()).astype('uint16')
+rs = np.moveaxis(rs, 0, -1).astype('uint8')
+rs = Image.fromarray(rs).convert('RGB')
+mk = Image.open('dstl/three_band/masks/6060_2_3.png')
+mk = np.asarray(mk)
+
+import matplotlib.pyplot as plt
+plt.figure()
+plt.imshow(rs, vmin=0,vmax=255)
+plt.imshow(mk, cmap='gray', alpha=0.6)
+plt.show()
 
 
 # crop images ------------------------------------------
